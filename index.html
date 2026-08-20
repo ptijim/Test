@@ -1,0 +1,3880 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Écoute musicale — rituel CM1-CM2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+  <script src="music_rituel_2025_2026_filled.js">
+// === PATCH: Edit wiring (robuste) ===
+(function(){
+  // Helpers
+  window.MUSIC_DATA = window.MUSIC_DATA || [];
+  function saveToLocal(){ try{ localStorage.setItem("MUSIC_DATA_JSON", JSON.stringify(window.MUSIC_DATA||[])); }catch(e){} }
+  function loadFromLocal(){ try{ const s=localStorage.getItem("MUSIC_DATA_JSON"); if(s){ const a=JSON.parse(s); if(Array.isArray(a)) return a; } }catch(e){} return (window.MUSIC_DATA||[]); }
+  function indexByDate(arr){ const m=new Map(); for(const x of arr){ if(x&&x.date){ m.set(x.date.slice(0,10), x); } } return m; }
+  function htmlEscape(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+  // state
+  window.DATA = window.DATA || loadFromLocal();
+  let CURRENT_DATE = null;
+
+  function setEditMode(on){
+    const fields = document.getElementById("editFields");
+    const btnEdit = document.getElementById("editBtn");
+    const btnSave = document.getElementById("saveBtn");
+    const btnCancel = document.getElementById("cancelBtn");
+    if(fields) fields.classList.toggle("hidden", !on);
+    if(btnSave) btnSave.classList.toggle("hidden", !on);
+    if(btnCancel) btnCancel.classList.toggle("hidden", !on);
+    if(btnEdit) btnEdit.classList.toggle("hidden", on);
+  }
+
+  function saveEdit(){
+    if(!CURRENT_DATE) return;
+    const t   = (document.getElementById("editTitre")?.value   || "").trim();
+    const a   = (document.getElementById("editAuteur")?.value  || "").trim();
+    const o   = (document.getElementById("editOrigine")?.value || "").trim();
+    const ins = (document.getElementById("editInstr")?.value   || "").trim();
+    const yt  = (document.getElementById("editYT")?.value      || "").trim();
+
+    const idx = DATA.findIndex(x => x && x.date && x.date.slice(0,10) === CURRENT_DATE);
+    const obj = idx>=0 ? {...DATA[idx]} : {date: CURRENT_DATE};
+    if(t) { obj.title = t; obj.titre = t; }
+    if(a) { obj.author = a; obj.auteur = a; }
+    obj.year = obj.year || obj.annee || obj["année"] || "";
+    obj.annee = obj.year;
+    obj.origin = o; obj["origine (pays auteur)"] = o;
+    obj.instruments = ins;
+    obj.youtube = yt;
+
+    if(idx>=0) DATA[idx] = obj; else DATA.push(obj);
+    window.MUSIC_DATA = DATA;
+    saveToLocal();
+    if(typeof renderDetail === "function") renderDetail(CURRENT_DATE);
+    if(typeof renderCalendar === "function") renderCalendar();
+    setEditMode(false);
+  }
+
+  function bindEditButtons(){
+    const editBtn = document.getElementById("editBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    if(editBtn && !editBtn.__bound){ editBtn.__bound = true; editBtn.addEventListener("click", ()=> setEditMode(true)); }
+    if(saveBtn && !saveBtn.__bound){ saveBtn.__bound = true; saveBtn.addEventListener("click", saveEdit); }
+    if(cancelBtn && !cancelBtn.__bound){ cancelBtn.__bound = true; cancelBtn.addEventListener("click", ()=> setEditMode(false)); }
+  }
+
+  // Extend renderDetail to prefill & wire
+  const prevRenderDetail = window.renderDetail;
+  window.renderDetail = function(dateStr){
+    CURRENT_DATE = dateStr;
+    if(prevRenderDetail) prevRenderDetail(dateStr);
+    const map = indexByDate(DATA);
+    const item = map.get(dateStr) || {};
+    const get = (k) => item[k] || item[k.toLowerCase()] || "";
+    const et = document.getElementById("editTitre");   if(et) et.value = get("title") || get("titre");
+    const ea = document.getElementById("editAuteur");  if(ea) ea.value = get("author") || get("auteur");
+    const eo = document.getElementById("editOrigine"); if(eo) eo.value = get("origin") || get("origine (pays auteur)");
+    const ei = document.getElementById("editInstr");   if(ei) ei.value = get("instruments");
+    const ey = document.getElementById("editYT");      if(ey) ey.value = get("youtube") || get("lien youtube");
+    setEditMode(false);
+    bindEditButtons();
+  };
+
+  // Initial bind & also try later once (for browsers delaying DOM)
+  document.addEventListener("DOMContentLoaded", ()=>{
+    bindEditButtons();
+    setTimeout(bindEditButtons, 300);
+  });
+})();
+
+</script>
+  <script src="https://cdn.tailwindcss.com">
+// === PATCH: Edit wiring (robuste) ===
+(function(){
+  // Helpers
+  window.MUSIC_DATA = window.MUSIC_DATA || [];
+  function saveToLocal(){ try{ localStorage.setItem("MUSIC_DATA_JSON", JSON.stringify(window.MUSIC_DATA||[])); }catch(e){} }
+  function loadFromLocal(){ try{ const s=localStorage.getItem("MUSIC_DATA_JSON"); if(s){ const a=JSON.parse(s); if(Array.isArray(a)) return a; } }catch(e){} return (window.MUSIC_DATA||[]); }
+  function indexByDate(arr){ const m=new Map(); for(const x of arr){ if(x&&x.date){ m.set(x.date.slice(0,10), x); } } return m; }
+  function htmlEscape(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+  // state
+  window.DATA = window.DATA || loadFromLocal();
+  let CURRENT_DATE = null;
+
+  function setEditMode(on){
+    const fields = document.getElementById("editFields");
+    const btnEdit = document.getElementById("editBtn");
+    const btnSave = document.getElementById("saveBtn");
+    const btnCancel = document.getElementById("cancelBtn");
+    if(fields) fields.classList.toggle("hidden", !on);
+    if(btnSave) btnSave.classList.toggle("hidden", !on);
+    if(btnCancel) btnCancel.classList.toggle("hidden", !on);
+    if(btnEdit) btnEdit.classList.toggle("hidden", on);
+  }
+
+  function saveEdit(){
+    if(!CURRENT_DATE) return;
+    const t   = (document.getElementById("editTitre")?.value   || "").trim();
+    const a   = (document.getElementById("editAuteur")?.value  || "").trim();
+    const o   = (document.getElementById("editOrigine")?.value || "").trim();
+    const ins = (document.getElementById("editInstr")?.value   || "").trim();
+    const yt  = (document.getElementById("editYT")?.value      || "").trim();
+
+    const idx = DATA.findIndex(x => x && x.date && x.date.slice(0,10) === CURRENT_DATE);
+    const obj = idx>=0 ? {...DATA[idx]} : {date: CURRENT_DATE};
+    if(t) { obj.title = t; obj.titre = t; }
+    if(a) { obj.author = a; obj.auteur = a; }
+    obj.origin = o; obj["origine (pays auteur)"] = o;
+    obj.instruments = ins;
+    obj.youtube = yt;
+
+    if(idx>=0) DATA[idx] = obj; else DATA.push(obj);
+    window.MUSIC_DATA = DATA;
+    saveToLocal();
+    if(typeof renderDetail === "function") renderDetail(CURRENT_DATE);
+    if(typeof renderCalendar === "function") renderCalendar();
+    setEditMode(false);
+  }
+
+  function bindEditButtons(){
+    const editBtn = document.getElementById("editBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    if(editBtn && !editBtn.__bound){ editBtn.__bound = true; editBtn.addEventListener("click", ()=> setEditMode(true)); }
+    if(saveBtn && !saveBtn.__bound){ saveBtn.__bound = true; saveBtn.addEventListener("click", saveEdit); }
+    if(cancelBtn && !cancelBtn.__bound){ cancelBtn.__bound = true; cancelBtn.addEventListener("click", ()=> setEditMode(false)); }
+  }
+
+  // Extend renderDetail to prefill & wire
+  const prevRenderDetail = window.renderDetail;
+  window.renderDetail = function(dateStr){
+    CURRENT_DATE = dateStr;
+    if(prevRenderDetail) prevRenderDetail(dateStr);
+    const map = indexByDate(DATA);
+    const item = map.get(dateStr) || {};
+    const get = (k) => item[k] || item[k.toLowerCase()] || "";
+    const et = document.getElementById("editTitre");   if(et) et.value = get("title") || get("titre");
+    const ea = document.getElementById("editAuteur");  if(ea) ea.value = get("author") || get("auteur");
+    const eo = document.getElementById("editOrigine"); if(eo) eo.value = get("origin") || get("origine (pays auteur)");
+    const ei = document.getElementById("editInstr");   if(ei) ei.value = get("instruments");
+    const ey = document.getElementById("editYT");      if(ey) ey.value = get("youtube") || get("lien youtube");
+    setEditMode(false);
+    bindEditButtons();
+  };
+
+  // Initial bind & also try later once (for browsers delaying DOM)
+  document.addEventListener("DOMContentLoaded", ()=>{
+    bindEditButtons();
+    setTimeout(bindEditButtons, 300);
+  });
+})();
+
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
+// === PATCH: Edit wiring (robuste) ===
+(function(){
+  // Helpers
+  window.MUSIC_DATA = window.MUSIC_DATA || [];
+  function saveToLocal(){ try{ localStorage.setItem("MUSIC_DATA_JSON", JSON.stringify(window.MUSIC_DATA||[])); }catch(e){} }
+  function loadFromLocal(){ try{ const s=localStorage.getItem("MUSIC_DATA_JSON"); if(s){ const a=JSON.parse(s); if(Array.isArray(a)) return a; } }catch(e){} return (window.MUSIC_DATA||[]); }
+  function indexByDate(arr){ const m=new Map(); for(const x of arr){ if(x&&x.date){ m.set(x.date.slice(0,10), x); } } return m; }
+  function htmlEscape(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+  // state
+  window.DATA = window.DATA || loadFromLocal();
+  let CURRENT_DATE = null;
+
+  function setEditMode(on){
+    const fields = document.getElementById("editFields");
+    const btnEdit = document.getElementById("editBtn");
+    const btnSave = document.getElementById("saveBtn");
+    const btnCancel = document.getElementById("cancelBtn");
+    if(fields) fields.classList.toggle("hidden", !on);
+    if(btnSave) btnSave.classList.toggle("hidden", !on);
+    if(btnCancel) btnCancel.classList.toggle("hidden", !on);
+    if(btnEdit) btnEdit.classList.toggle("hidden", on);
+  }
+
+  function saveEdit(){
+    if(!CURRENT_DATE) return;
+    const t   = (document.getElementById("editTitre")?.value   || "").trim();
+    const a   = (document.getElementById("editAuteur")?.value  || "").trim();
+    const o   = (document.getElementById("editOrigine")?.value || "").trim();
+    const ins = (document.getElementById("editInstr")?.value   || "").trim();
+    const yt  = (document.getElementById("editYT")?.value      || "").trim();
+
+    const idx = DATA.findIndex(x => x && x.date && x.date.slice(0,10) === CURRENT_DATE);
+    const obj = idx>=0 ? {...DATA[idx]} : {date: CURRENT_DATE};
+    if(t) { obj.title = t; obj.titre = t; }
+    if(a) { obj.author = a; obj.auteur = a; }
+    obj.origin = o; obj["origine (pays auteur)"] = o;
+    obj.instruments = ins;
+    obj.youtube = yt;
+
+    if(idx>=0) DATA[idx] = obj; else DATA.push(obj);
+    window.MUSIC_DATA = DATA;
+    saveToLocal();
+    if(typeof renderDetail === "function") renderDetail(CURRENT_DATE);
+    if(typeof renderCalendar === "function") renderCalendar();
+    setEditMode(false);
+  }
+
+  function bindEditButtons(){
+    const editBtn = document.getElementById("editBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    if(editBtn && !editBtn.__bound){ editBtn.__bound = true; editBtn.addEventListener("click", ()=> setEditMode(true)); }
+    if(saveBtn && !saveBtn.__bound){ saveBtn.__bound = true; saveBtn.addEventListener("click", saveEdit); }
+    if(cancelBtn && !cancelBtn.__bound){ cancelBtn.__bound = true; cancelBtn.addEventListener("click", ()=> setEditMode(false)); }
+  }
+
+  // Extend renderDetail to prefill & wire
+  const prevRenderDetail = window.renderDetail;
+  window.renderDetail = function(dateStr){
+    CURRENT_DATE = dateStr;
+    if(prevRenderDetail) prevRenderDetail(dateStr);
+    const map = indexByDate(DATA);
+    const item = map.get(dateStr) || {};
+    const get = (k) => item[k] || item[k.toLowerCase()] || "";
+    const et = document.getElementById("editTitre");   if(et) et.value = get("title") || get("titre");
+    const ea = document.getElementById("editAuteur");  if(ea) ea.value = get("author") || get("auteur");
+    const eo = document.getElementById("editOrigine"); if(eo) eo.value = get("origin") || get("origine (pays auteur)");
+    const ei = document.getElementById("editInstr");   if(ei) ei.value = get("instruments");
+    const ey = document.getElementById("editYT");      if(ey) ey.value = get("youtube") || get("lien youtube");
+    setEditMode(false);
+    bindEditButtons();
+  };
+
+  // Initial bind & also try later once (for browsers delaying DOM)
+  document.addEventListener("DOMContentLoaded", ()=>{
+    bindEditButtons();
+    setTimeout(bindEditButtons, 300);
+  });
+})();
+
+</script>
+  <style>
+    .day{aspect-ratio:1/1}
+    .badge{display:inline-block;padding:.1rem .4rem;border-radius:9999px;background:#eef2ff;color:#312e81;font-size:.75rem;margin-left:.25rem}
+    .scrollbar-thin{scrollbar-width:thin}
+    .link{color:#4f46e5;text-decoration:underline}
+  </style>
+<style>#viewCalendar #editBtn{display:none!important;}</style>
+<style>
+/* === Fun theme CM1-CM2 === */
+body{background: linear-gradient(180deg, #f8fafc 0%, #f0f9ff 100%);} 
+.header-title{display:flex; align-items:center; gap:.5rem}
+.header-title .spark{font-size:1.6rem}
+.card{border-radius:1rem; box-shadow:0 8px 24px rgba(2,6,23,.06);}
+.fun-badge{display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .5rem; border-radius:9999px; background:#eef2ff; color:#3730a3; font-weight:600; font-size:.75rem}
+.fun-badge .dot{width:.5rem; height:.5rem; border-radius:50%; background:#6366f1}
+h1,h2{letter-spacing:.2px}
+</style>
+
+<style>#viewDetail #editBtn{display:none!important;}</style>
+
+<style>
+/* Cacher l'UI d'import SANS toucher au calendrier */
+#file { display:none !important; }
+label[for="file"], button[for="file"] { display:none !important; }
+/* Blocks courants d'import s'ils existent */
+#importBanner, .import-banner, .import-controls, [data-import="true"] { display:none !important; }
+/* Retirer les boutons d'export (calendrier + détail) */
+#navExport, #detailExportBtn, #detailExportOneBtn { display:none !important; }
+</style>
+
+<!-- === MODERN FUN THEME (Genially-like) === -->
+<style id="modernTheme">
+  :root{
+    --bg-start:#0f172a; --bg-end:#1e293b;
+    --acc-1:#a78bfa; --acc-2:#22d3ee; --acc-3:#f472b6;
+    --card:#0b1220ee; --card-border:#1f2a44;
+    --text:#e2e8f0; --muted:#94a3b8;
+  }
+  html, body { height:100%; }
+  body{
+    color:var(--text);
+    background:
+      radial-gradient(1200px 800px at 10% -10%, rgba(34,211,238,.25), transparent 60%),
+      radial-gradient(1000px 700px at 90% 110%, rgba(167,139,250,.18), transparent 60%),
+      linear-gradient(180deg, var(--bg-start), var(--bg-end));
+    position:relative; overflow-x:hidden;
+  }
+  body::after{
+    content:""; position:fixed; right:-140px; bottom:-80px; width:520px; height:520px;
+    background-image:url('data:image/svg+xml;utf8,\
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">\
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">\
+<stop offset="0" stop-color="%23a78bfa" stop-opacity=".45"/>\
+<stop offset="1" stop-color="%2322d3ee" stop-opacity=".35"/></linearGradient></defs>\
+<g fill="url(%23g)" opacity=".55">\
+<path d="M354 146c-9 9-16 18-21 28l-36 15-23 23 18 18 23-23 15-36c10-5 19-12 28-21 21-21 36-46 40-59 2-7-3-12-10-10-13 4-38 19-59 40z"/>\
+<rect x="360" y="70" width="110" height="20" rx="6" ry="6"/>\
+<rect x="360" y="98" width="110" height="20" rx="6" ry="6"/>\
+<rect x="360" y="126" width="110" height="20" rx="6" ry="6"/>\
+<circle cx="210" cy="330" r="120"/>\
+<circle cx="210" cy="330" r="72" fill="%23ffffff22"/></g></svg>');
+    background-size:contain; background-repeat:no-repeat; filter: blur(0.2px);
+    pointer-events:none; z-index:0; opacity:.5;
+  }
+  .card{ background:var(--card); border:1px solid var(--card-border);
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+    backdrop-filter:saturate(120%) blur(2px);
+    transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
+  }
+  .card:hover{ transform:translateY(-2px); box-shadow:0 18px 40px rgba(0,0,0,.35); }
+  .btn-modern{ position:relative; overflow:hidden; }
+  .btn-modern::after{
+    content:""; position:absolute; inset:auto -20% -120% -20%; height:180%;
+    background:conic-gradient(from 180deg at 50% 50%, var(--acc-1), var(--acc-2), var(--acc-3), var(--acc-1));
+    opacity:.15; transform:rotate(8deg);
+    transition:opacity .3s, transform .6s cubic-bezier(.22,1,.36,1);
+  }
+  .btn-modern:hover::after{ opacity:.25; transform:rotate(0deg); }
+  .fun-title{ font-size: clamp(1.7rem, 2.2vw + 1rem, 3rem); line-height:1.1;
+    background:linear-gradient(90deg, var(--acc-1), var(--acc-2), var(--acc-3));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter: drop-shadow(0 2px 18px rgba(162, 126, 247, .15));
+    opacity:0; transform: translateY(10px) scale(.98);
+    animation: titleIn .9s .15s cubic-bezier(.22,1,.36,1) forwards;
+  }
+  @keyframes titleIn{ 0%{ opacity:0; transform: translateY(18px) scale(.96) rotateX(10deg); }
+    60%{ opacity:1; transform: translateY(0) scale(1.01); }
+    100%{ opacity:1; transform: translateY(0) scale(1); } }
+  .view{ opacity:0; transform:translateY(6px); transition: opacity .45s, transform .45s; }
+  .view.show{ opacity:1; transform:translateY(0); }
+  .day{ transition: transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease; }
+  .day:hover{ transform: translateY(-2px); box-shadow:0 10px 18px rgba(0,0,0,.25); }
+  .soft-border{ border-color: var(--card-border) !important; }
+  .muted{ color:var(--muted); }
+</style>
+
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">♪</div>
+        <div>
+          <p class="eyebrow">Rituel CM1 · CM2</p>
+          <h1 class="text-2xl md:text-3xl font-black header-title fun-title">Écoute musicale</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" id="todayBtn" class="today-btn">▶ Morceau du jour</button>
+        <span style="display:none"><button id="navCalendar" class="px-3 py-2 rounded-xl bg-slate-800 text-white btn-modern">Calendrier</button></span>
+        <button id="navExport" class="px-3 py-2 rounded-xl bg-blue-600 text-white btn-modern">Exporter Excel</button>
+        <a class="pdf-link" href="fiche_ecoute.pdf" target="_blank">Fiche élève</a>
+      </div>
+    </header>
+
+    <section class="mt-4 rounded-2xl border bg-white shadow p-4 space-y-3 card teacher-panel">
+      <h2 class="font-bold"></h2>
+      <div class="grid md:grid-cols-3 gap-3">
+        <div class="md:col-span-2">
+          <input id="file" type="file" accept=".xlsx,.xls,.csv" class="text-sm"/>
+          <p id="importStatus" class="text-xs text-emerald-700 mt-1"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="viewCalendar" class="view mt-4 rounded-2xl border bg-white shadow p-4 card show">
+      <div class="calendar-toolbar">
+        <div class="flex gap-2 teacher-panel">
+          <button id="editBtn" class="px-3 py-2 rounded-xl bg-amber-500 text-white btn-modern">✏️ Modifier</button>
+          <button id="saveBtn" class="hidden px-3 py-2 rounded-xl bg-emerald-600 text-white btn-modern">💾 Enregistrer</button>
+          <button id="cancelBtn" class="hidden px-3 py-2 rounded-xl bg-slate-300 text-slate-800 btn-modern">Annuler</button>
+        </div>
+        <div class="year-chip">
+          <div class="text-slate-500 text-sm">Année scolaire</div>
+          <div id="yearLbl" class="text-lg font-semibold">—</div>
+        </div>
+        <div class="count-chip">Ce mois : <span id="countMonth">0</span> morceaux</div>
+      </div>
+
+      <div class="month-nav">
+        <button id="prev" class="nav-arrow" aria-label="Mois précédent">◀</button>
+        <div id="monthLbl" class="month-label">—</div>
+        <button id="next" class="nav-arrow" aria-label="Mois suivant">▶</button>
+      </div>
+      <div id="calendarWeekdays" aria-hidden="true">
+        <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+      </div>
+      <div id="grid" class="mt-3 grid grid-cols-7 gap-2"></div>
+
+      <div class="month-list">
+        <h3 class="font-semibold mb-2">Morceaux du mois <span class="badge" id="badgeMonth">—</span></h3>
+        <div id="list" class="max-h-64 overflow-auto pr-2 scrollbar-thin"></div>
+      </div>
+    </section>
+
+    <section id="viewDetail" class="view hidden mt-4 rounded-2xl border bg-white shadow p-5 space-y-3 card">
+      <div class="detail-top">
+        <button id="backBtn" class="back-btn">← Calendrier</button>
+        <div class="detail-date">
+          <div class="text-slate-500 text-sm">Date du rituel</div>
+          <div id="dateLbl" class="text-lg font-semibold">—</div>
+        </div>
+        <div class="flex gap-2 teacher-panel">
+          <button id="editBtn" class="px-3 py-2 rounded-xl bg-amber-500 text-white btn-modern">✏️ Modifier</button>
+          <button id="saveBtn" class="hidden px-3 py-2 rounded-xl bg-emerald-600 text-white btn-modern">💾 Enregistrer</button>
+          <button id="cancelBtn" class="hidden px-3 py-2 rounded-xl bg-slate-300 text-slate-800 btn-modern">Annuler</button>
+        </div>
+      </div>
+
+      <div class="detail-layout">
+        <div class="player-col">
+          <div class="info-hero">
+            <div id="titre" class="track-title">—</div>
+            <div id="auteur" class="track-artist">—</div>
+          </div>
+          <div class="player-frame">
+            <iframe id="ytFrame" width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <aside class="meta-col">
+          <div class="artist-card">
+            <img id="authorImg" src="" alt="Photo auteur" />
+            <div>
+              <div id="authorImgStatus" class="text-xs text-slate-500">Recherche d’une image sur Wikipédia…</div>
+              <div id="authorImgCredit" class="text-xs text-slate-400"></div>
+            </div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Origine <span id="flagIcon"></span></div>
+            <div id="origine" class="meta-value">—</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Instruments</div>
+            <div id="instruments" class="meta-value">—</div>
+            <button id="toggleInstr" class="toggle-instr">Masquer / afficher</button>
+          </div>
+          <div class="map-wrap">
+            <div class="meta-label">Sur la carte</div>
+            <iframe id="mapFrame" width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+          </div>
+        </aside>
+      </div>
+
+      <div id="editFields" class="hidden mt-2 rounded-xl bg-slate-50 border p-3 space-y-3">
+        <div class="grid md:grid-cols-2 gap-3">
+          <label class="text-sm">Titre
+            <input id="editTitre" type="text" class="mt-1 w-full border rounded px-2 py-1"/>
+          </label>
+          <label class="text-sm">Auteur / Artiste
+            <input id="editAuteur" type="text" class="mt-1 w-full border rounded px-2 py-1"/>
+          </label>
+        </div>
+        <div class="grid md:grid-cols-2 gap-3">
+          <label class="text-sm">Origine (pays auteur)
+            <input id="editOrigine" type="text" class="mt-1 w-full border rounded px-2 py-1"/>
+          </label>
+          <label class="text-sm">Instruments (séparés par des virgules)
+            <input id="editInstr" type="text" class="mt-1 w-full border rounded px-2 py-1"/>
+          </label>
+        </div>
+        <label class="text-sm block">Lien YouTube
+          <input id="editYT" type="url" class="mt-1 w-full border rounded px-2 py-1" placeholder="https://www.youtube.com/watch?v=..."/>
+        </label>
+      </div>
+    </section>
+  </div>
+
+
+<script>
+try{ localStorage.removeItem("MUSIC_DATA_JSON"); }catch(e){}
+window.MUSIC_DATA = [];
+window.DATA = [];
+
+// ===== Utils =====
+function htmlEscape(s){ return String(s??"").replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+function pad(n){ return String(n).padStart(2,"0"); }
+function monthLabel(y,m){
+  const noms=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  return noms[m]+" "+y;
+}
+function lowerNoAccents(s){ return String(s||"").normalize("NFD").replace(/\p{Diacritic}+/gu,"").toLowerCase().trim(); }
+function norm(s){ return (s||"").toString().trim(); }
+
+// ===== Data (localStorage d'abord, fallback JS) =====
+window.MUSIC_DATA = window.MUSIC_DATA || [];
+function saveToLocal(){ try{ localStorage.setItem("MUSIC_DATA_JSON", JSON.stringify(window.MUSIC_DATA||[])); }catch(e){} }
+function loadFromLocal(){
+  try{ const s = localStorage.getItem("MUSIC_DATA_JSON"); if(s){ const arr=JSON.parse(s); if(Array.isArray(arr)) return arr; } }catch(e){}
+  return (window.MUSIC_DATA||[]);
+}
+function indexByDate(arr){ const m=new Map(); for(const x of arr){ if(x && x.date){ m.set(x.date.slice(0,10), x); } } return m; }
+
+let DATA = loadFromLocal();
+let dataMap = indexByDate(DATA);
+
+// ===== Import =====
+const importStatus = document.getElementById("importStatus");
+async function readFileArrayBuffer(file){
+  if(file.arrayBuffer){ return await file.arrayBuffer(); }
+  return await new Promise((resolve, reject)=>{ const fr=new FileReader(); fr.onload=()=>resolve(fr.result); fr.onerror=()=>reject(fr.error); fr.readAsArrayBuffer(file); });
+}
+async function readFileText(file){
+  if(file.text){ return await file.text(); }
+  return await new Promise((resolve, reject)=>{ const fr=new FileReader(); fr.onload=()=>resolve(fr.result); fr.onerror=()=>reject(fr.error); fr.readAsText(file,"utf-8"); });
+}
+function mapHeaders(hdr){
+  // Lecture tolérante des intitulés du nouveau musique.xlsx.
+  // On accepte accents, apostrophes, espaces insécables et variantes de noms.
+  const clean = s => lowerNoAccents(String(s||"")
+    .replace(/[\u00A0\u2007\u202F]/g," ")
+    .replace(/[’‘`]/g,"'")
+    .replace(/[\"«»]/g,"")
+    .replace(/\s+/g," ").trim());
+  const low = hdr.map(clean);
+  const aliases = {
+    date:["date","jour","day","date du morceau","date de diffusion"],
+    titre:["titre","title","morceau","oeuvre","œuvre","piece","titre de l'oeuvre","titre de l œuvre","nom de l'oeuvre","nom de l œuvre"],
+    auteur:["auteur","artiste","artist","groupe","interprete","interpret","compositeur","compositeur artiste","auteur artiste","artiste auteur","nom de l'artiste","nom de l auteur","nom de l'artiste / groupe"],
+    origin:["origine (pays auteur)","origine","pays","pays d'origine","pays de l'auteur","origine du morceau"],
+    instr:["instruments","instrument","instruments utilisés","instruments utilises"],
+    yt:["Lien YouTube (vérifiée)","lien youtube (vérifiée)","Lien YouTube vérifiée","lien youtube verifiee"],
+    year:["année","annee","year","an","année de création","annee de creation","annee creation","année creation","année du morceau","annee du morceau","année de l'oeuvre","annee de l'oeuvre"]
+  };
+  function exactOrContains(key){
+    const names=aliases[key].map(clean);
+    // priorité à la correspondance exacte
+    for(const name of names){ const i=low.indexOf(name); if(i>=0) return i; }
+    // puis aux intitulés plus longs contenant l'intitulé attendu
+    for(let i=0;i<low.length;i++){
+      const h=low[i];
+      if(!h) continue;
+      for(const name of names){
+        if(name && (h.includes(name) || name.includes(h))) return i;
+      }
+    }
+    return -1;
+  }
+  return {
+    date: exactOrContains("date"),
+    titre: exactOrContains("titre"),
+    auteur: exactOrContains("auteur"),
+    origin: exactOrContains("origin"),
+    instr: exactOrContains("instr"),
+    yt: exactOrContains("yt"),
+    year: exactOrContains("year")
+  };
+}
+
+function findHeaderRow(rows){
+  // Certains fichiers Excel comportent une ligne de titre avant les en-têtes.
+  // On cherche donc la vraie ligne d'en-têtes dans les 12 premières lignes.
+  let best={index:0,map:mapHeaders(rows[0]||[]),score:-1};
+  const max=Math.min(rows.length,12);
+  for(let i=0;i<max;i++){
+    const map=mapHeaders(rows[i]||[]);
+    const score=[map.date,map.titre,map.auteur,map.year,map.origin,map.instr,map.yt].filter(x=>x>=0).length;
+    if(score>best.score) best={index:i,map,score};
+    if(map.date>=0 && map.titre>=0 && map.auteur>=0) return {index:i,map};
+  }
+  return best;
+}
+function toISODate(value){
+  if(value == null || value === "") return "";
+  if(value instanceof Date && !isNaN(value)) {
+    return value.getFullYear()+"-"+pad(value.getMonth()+1)+"-"+pad(value.getDate());
+  }
+  if(typeof value === "number" && typeof XLSX !== "undefined" && XLSX.SSF){
+    const d = XLSX.SSF.parse_date_code(value);
+    if(d) return d.y+"-"+pad(d.m)+"-"+pad(d.d);
+  }
+  const v = String(value).trim();
+  let m = v.match(/^(\\d{1,2})[\\/.-](\\d{1,2})[\\/.-](\\d{4})$/);
+  if(m) return m[3]+"-"+pad(m[2])+"-"+pad(m[1]);
+  m = v.match(/^(\\d{4})[\\/.-](\\d{1,2})[\\/.-](\\d{1,2})/);
+  if(m) return m[1]+"-"+pad(m[2])+"-"+pad(m[3]);
+  const d = new Date(v);
+  return isNaN(d) ? "" : d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+}
+
+function normalizeYear(value){
+  if(value == null || value === "") return "";
+  if(typeof value === "number" && isFinite(value)) return String(Math.trunc(value));
+  const m = String(value).match(/\\b(1[0-9]{3}|20[0-9]{2}|21[0-9]{2})\\b/);
+  return m ? m[1] : String(value).trim();
+}
+
+function displayTitle(item){
+  const title = String(item?.title ?? item?.titre ?? "").trim();
+  const year = normalizeYear(item?.year ?? item?.annee ?? item?.["année"]);
+  if(!title) return "Titre";
+  if(!year) return title;
+  // Évite les doublons si l'ancien fichier contient déjà l'année dans le titre.
+  const withoutYear = title.replace(/\\s*\\((1[0-9]{3}|20[0-9]{2}|21[0-9]{2})\\)\\s*$/,"").trim();
+  return `${withoutYear} (${year})`;
+}
+
+async function importFile(file){
+  const ext = (file.name.split(".").pop()||"").toLowerCase();
+  let rows=[];
+  try{
+    if(ext==="csv"){
+      const txt = await readFileText(file);
+      rows = txt.split(/\r?\n/).filter(Boolean).map(line=> line.split(",").map(x=>x.replace(/^"|"$/g,"")));
+    }else{
+      const buf = await readFileArrayBuffer(file);
+      const wb = XLSX.read(buf, {type:"array"});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(ws, {header:1});
+    }
+  }catch(e){
+    importStatus.textContent = "Erreur de lecture : " + e;
+    return;
+  }
+  if(!rows.length){ importStatus.textContent = "Fichier vide."; return; }
+  const hdr = (rows[0]||[]).map(x=> String(x||"").trim());
+  const map = mapHeaders(hdr);
+  if(map.date<0 || map.titre<0 || map.auteur<0){ importStatus.textContent = "Colonnes minimales manquantes : date, titre, auteur."; return; }
+
+  let updated=0, inserted=0;
+  for(const r of rows.slice(1)){
+    const date = toISODate(r[map.date]); if(!date) continue;
+    const obj = {
+      date,
+      title: norm(r[map.titre]),
+      auteur: norm(r[map.auteur]),
+      author: norm(r[map.auteur]),
+      year: map.year>=0 ? normalizeYear(r[map.year]) : "",
+      annee: map.year>=0 ? normalizeYear(r[map.year]) : "",
+      origin: map.origin>=0 ? norm(r[map.origin]) : "",
+      instruments: map.instr>=0 ? norm(r[map.instr]) : "",
+      youtube: map.yt>=0 ? norm(r[map.yt]) : "",
+    };
+    if(dataMap.has(date)){ dataMap.set(date, {...dataMap.get(date), ...obj}); updated++; }
+    else { dataMap.set(date, obj); inserted++; }
+  }
+  DATA = Array.from(dataMap.values()).sort((a,b)=> (a.date<b.date?-1:1));
+  window.MUSIC_DATA = DATA;
+  saveToLocal();
+  importStatus.textContent = `Import terminé : ${updated} mis à jour, ${inserted} ajoutés.`;
+  renderCalendar(); // refresh
+}
+
+// ===== Export =====
+function exportXLSX(){
+  const hdr = ["date","titre","auteur","année","origine (pays auteur)","instruments","youtube"];
+  const arr = [hdr];
+  for(const x of DATA){
+    arr.push([
+      x.date||"",
+      x.title || x.titre || "",
+      x.author || x.auteur || "",
+      x.year || x.annee || x["année"] || "",
+      x.origin || x["origine (pays auteur)"] || "",
+      x.instruments || "",
+      x.youtube || x["lien youtube"] || ""
+    ]);
+  }
+  const ws = XLSX.utils.aoa_to_sheet(arr);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "morceaux");
+  XLSX.writeFile(wb, "morceaux_utilises.xlsx");
+}
+document.getElementById("navExport").addEventListener("click", exportXLSX);
+document.getElementById("file").addEventListener("change", async (e)=>{ const f=e.target.files?.[0]; if(!f) return; importStatus.textContent="Lecture…"; await importFile(f); });
+
+// ===== Calendrier =====
+const grid = document.getElementById("grid");
+const list = document.getElementById("list");
+const monthLbl = document.getElementById("monthLbl");
+const yearLbl = document.getElementById("yearLbl");
+const badgeMonth = document.getElementById("badgeMonth");
+const countMonth = document.getElementById("countMonth");
+let cur = new Date();
+let curY = cur.getUTCFullYear(), curM = cur.getUTCMonth();
+
+function renderCalendar(){
+  // reindex map
+  dataMap = indexByDate(DATA);
+  monthLbl.textContent = monthLabel(curY, curM);
+  yearLbl.textContent = curY + "–" + (curY+1);
+  badgeMonth.textContent = monthLabel(curY, curM);
+  grid.innerHTML = "";
+  list.innerHTML = "";
+
+  const first = new Date(Date.UTC(curY, curM, 1));
+  const startDay = (first.getUTCDay() + 6) % 7; // lundi=0
+  const daysInMonth = new Date(Date.UTC(curY, curM+1, 0)).getUTCDate();
+
+  for(let i=0;i<startDay;i++){
+    const div = document.createElement("div");
+    div.className = "day rounded-xl bg-slate-100 border";
+    grid.appendChild(div);
+  }
+
+  let usedThisMonth = 0;
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = `${curY}-${pad(curM+1)}-${pad(d)}`;
+    const item = dataMap.get(dateStr);
+    const has = !!item;
+
+    const cell = document.createElement("button");
+    cell.type="button";
+    cell.className = "day rounded-xl border w-full text-left p-2 " + (has ? "bg-emerald-50 border-emerald-200" : "bg-white");
+    cell.innerHTML = `<div class="text-xs text-slate-500">${d}</div>` + (has ? `<div class="mt-1 font-semibold text-sm line-clamp-3">${htmlEscape(displayTitle(item))}</div><div class="text-xs text-slate-500 line-clamp-1">${htmlEscape(item.author || item.auteur || "")}</div>` : `<div class="text-xs text-slate-400 mt-1">—</div>`);
+    cell.addEventListener("click", ()=>{
+      location.hash = "#/date=" + dateStr; // route vers fiche
+    });
+    grid.appendChild(cell);
+
+    if(has){
+      usedThisMonth++;
+      const row = document.createElement("div");
+      row.className = "px-2 py-1 rounded hover:bg-slate-50 text-sm flex items-center justify-between";
+      row.innerHTML = `<div><span class="text-slate-500 text-xs">${dateStr}</span> — <b>${htmlEscape(displayTitle(item))}</b> <span class="text-slate-600">(${htmlEscape(item.author || item.auteur || "Auteur")})</span></div>
+      <a class="text-indigo-600 underline text-xs" href="#/date=${encodeURIComponent(dateStr)}">ouvrir</a>`;
+      list.appendChild(row);
+    }
+  }
+  countMonth.textContent = usedThisMonth;
+}
+document.getElementById("prev").addEventListener("click", ()=>{ curM--; if(curM<0){curM=11;curY--;} renderCalendar(); });
+document.getElementById("next").addEventListener("click", ()=>{ curM++; if(curM>11){curM=0;curY++;} renderCalendar(); });
+document.getElementById("navCalendar").addEventListener("click", ()=>{ location.hash = "#/"; });
+renderCalendar();
+
+// ===== Fiche =====
+function renderDetail(dateStr){
+  const data = indexByDate(DATA);
+  const item = data.get(dateStr) || {};
+  document.getElementById("dateLbl").textContent = dateStr || "—";
+  document.getElementById("titre").textContent = displayTitle(item) === "Titre" ? "—" : displayTitle(item);
+  document.getElementById("auteur").textContent = item.author || item.auteur || "—";
+  document.getElementById("origine").textContent = item.origin || item["origine (pays auteur)"] || "—";
+  document.getElementById("instruments").textContent = item.instruments || "—";
+
+  const wrap = document.getElementById("ytWrap"); wrap.innerHTML="";
+  const url = item.youtube || item["lien youtube"] || "";
+  if(url){
+    const a = document.createElement("a");
+    a.href = url; a.target="_blank"; a.className="link";
+    a.textContent = "Ouvrir sur YouTube";
+    wrap.appendChild(a);
+  }else{
+    wrap.innerHTML = '<span class="text-slate-500 text-sm">Pas de lien YouTube</span>';
+  }
+}
+
+// Masquer/afficher instruments
+(function(){
+  const btn = document.getElementById("toggleInstr");
+  const el = document.getElementById("instruments");
+  let visible = true;
+  btn.addEventListener("click", ()=>{ visible=!visible; el.style.visibility = visible ? "visible" : "hidden"; });
+})();
+
+document.getElementById("backBtn").addEventListener("click", ()=>{ location.hash = "#/"; });
+
+
+// ===== Media helpers (YouTube, Map, Author Image) =====
+function toYouTubeEmbed(url){
+  if(!url) return "";
+  try{
+    const u = new URL(url);
+    // youtu.be/<id>
+    if(u.hostname.includes("youtu.be")){
+      const id = u.pathname.replace("/","");
+      return "https://www.youtube.com/embed/" + id;
+    }
+    // youtube.com/watch?v=<id>
+    if(u.hostname.includes("youtube.com")){
+      const id = u.searchParams.get("v");
+      if(id) return "https://www.youtube.com/embed/" + id;
+      // playlist or others: try to keep as is
+      return "https://www.youtube.com/embed/";
+    }
+  }catch(e){}
+  return "";
+}
+
+function toMapEmbed(place){
+  if(!place) return "";
+  // Utilise l'URL d'intégration libre de Google Maps sans clé
+  // NB: nécessite internet au moment de l'affichage
+  const q = encodeURIComponent(place);
+  return "https://www.google.com/maps?q=" + q + "&output=embed";
+}
+
+// Cache pour images d'auteur (localStorage)
+function cacheGet(key){
+  try{ const s=localStorage.getItem(key); if(!s) return null; return JSON.parse(s); }catch(e){ return null; }
+}
+function cacheSet(key, val){
+  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+}
+
+async function fetchAuthorImage(author){
+  const statusEl = document.getElementById("authorImgStatus");
+  const creditEl = document.getElementById("authorImgCredit");
+  const imgEl = document.getElementById("authorImg");
+  const name = (author||"").trim();
+  if(!name){ imgEl.src=""; statusEl.textContent="Aucun auteur."; return; }
+
+  const CACHE_KEY = "AUTHOR_IMG_" + name.toLowerCase();
+  const cached = cacheGet(CACHE_KEY);
+  if(cached && cached.url){
+    imgEl.src = cached.url;
+    statusEl.textContent = "Image mise en cache.";
+    creditEl.textContent = cached.credit || "";
+    return;
+  }
+
+  statusEl.textContent = "Recherche sur Wikipédia FR…";
+  // 1) Wikipédia FR
+  try{
+    const url = "https://fr.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages|info&inprop=url&piprop=thumbnail&pithumbsize=400&titles=" + encodeURIComponent(name);
+    const r = await fetch(url);
+    if(r.ok){
+      const j = await r.json();
+      const pages = j?.query?.pages || {};
+      const first = Object.values(pages)[0];
+      const thumb = first?.thumbnail?.source;
+      if(thumb){
+        imgEl.src = thumb;
+        statusEl.textContent = "Image trouvée sur Wikipédia (FR).";
+        creditEl.textContent = first?.fullurl ? ("Source : " + first.fullurl) : "";
+        cacheSet(CACHE_KEY, {url: thumb, credit: creditEl.textContent});
+        return;
+      }
+    }
+  }catch(e){}
+
+  statusEl.textContent = "Recherche sur Wikipédia EN…";
+  // 2) Wikipédia EN
+  try{
+    const url = "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages|info&inprop=url&piprop=thumbnail&pithumbsize=400&titles=" + encodeURIComponent(name);
+    const r = await fetch(url);
+    if(r.ok){
+      const j = await r.json();
+      const pages = j?.query?.pages || {};
+      const first = Object.values(pages)[0];
+      const thumb = first?.thumbnail?.source;
+      if(thumb){
+        imgEl.src = thumb;
+        statusEl.textContent = "Image trouvée sur Wikipédia (EN).";
+        creditEl.textContent = first?.fullurl ? ("Source : " + first.fullurl) : "";
+        cacheSet(CACHE_KEY, {url: thumb, credit: creditEl.textContent});
+        return;
+      }
+    }
+  }catch(e){}
+
+  // 3) Échec
+  imgEl.src = "";
+  statusEl.textContent = "Aucune image trouvée automatiquement.";
+  creditEl.textContent = "";
+}
+
+// Étend renderDetail pour renseigner les iframes + image
+const __renderDetailOrig = renderDetail;
+renderDetail = function(dateStr){
+  __renderDetailOrig(dateStr);
+
+  const data = indexByDate(DATA);
+  const item = data.get(dateStr) || {};
+  // YouTube
+  const yt = item.youtube || item["lien youtube"] || "";
+  const ytSrc = toYouTubeEmbed(yt);
+  const ytFrame = document.getElementById("ytFrame");
+  ytFrame.src = ytSrc || "";
+  // Maps
+  const origin = item.origin || item["origine (pays auteur)"] || "";
+  const mapSrc = toMapEmbed(origin);
+  const mapFrame = document.getElementById("mapFrame");
+  mapFrame.src = mapSrc || "";
+  // Photo auteur
+  const author = item.author || item.auteur || "";
+  fetchAuthorImage(author);
+};
+
+
+// ===== Edition (v2_edit) =====
+let CURRENT_DATE = null;
+function htmlEscape(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+// Persist helpers already exist in v2 for MUSIC_DATA; ensure they do:
+window.MUSIC_DATA = window.MUSIC_DATA || [];
+function saveToLocal(){ try{ localStorage.setItem("MUSIC_DATA_JSON", JSON.stringify(window.MUSIC_DATA||[])); }catch(e){} }
+function loadFromLocal(){
+  try{ const s = localStorage.getItem("MUSIC_DATA_JSON"); if(s){ const a = JSON.parse(s); if(Array.isArray(a)) return a; } }catch(e){}
+  return (window.MUSIC_DATA||[]);
+}
+function indexByDate(arr){ const m=new Map(); for(const x of arr){ if(x&&x.date){ m.set(x.date.slice(0,10), x);} } return m; }
+
+// Hook existing DATA structures if present, else build from MUSIC_DATA
+if(typeof DATA === "undefined"){ window.DATA = loadFromLocal(); }
+if(typeof dataMap === "undefined"){ window.dataMap = indexByDate(DATA); }
+
+function setEditMode(on){
+  const fields = document.getElementById("editFields");
+  const btnEdit = document.getElementById("editBtn");
+  const btnSave = document.getElementById("saveBtn");
+  const btnCancel = document.getElementById("cancelBtn");
+  if(fields) fields.classList.toggle("hidden", !on);
+  if(btnSave) btnSave.classList.toggle("hidden", !on);
+  if(btnCancel) btnCancel.classList.toggle("hidden", !on);
+  if(btnEdit) btnEdit.classList.toggle("hidden", on);
+}
+
+function bindEditButtons(){
+  const editBtn = document.getElementById("editBtn");
+  const saveBtn = document.getElementById("saveBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+  if(editBtn && !editBtn.__bound){ editBtn.__bound = true; editBtn.addEventListener("click", ()=> setEditMode(true)); }
+  if(cancelBtn && !cancelBtn.__bound){ cancelBtn.__bound = true; cancelBtn.addEventListener("click", ()=> setEditMode(false)); }
+  if(saveBtn && !saveBtn.__bound){ saveBtn.__bound = true; saveBtn.addEventListener("click", saveEdit); }
+}
+
+function saveEdit(){
+  if(!CURRENT_DATE) return;
+  const t   = (document.getElementById("editTitre").value   || "").trim();
+  const a   = (document.getElementById("editAuteur").value  || "").trim();
+  const o   = (document.getElementById("editOrigine").value || "").trim();
+  const ins = (document.getElementById("editInstr").value   || "").trim();
+  const yt  = (document.getElementById("editYT").value      || "").trim();
+
+  const idx = DATA.findIndex(x => x && x.date && x.date.slice(0,10) === CURRENT_DATE);
+  const obj = idx>=0 ? {...DATA[idx]} : {date: CURRENT_DATE};
+  if(t) { obj.title = t; obj.titre = t; }
+  if(a) { obj.author = a; obj.auteur = a; }
+  obj.origin = o; obj["origine (pays auteur)"] = o;
+  obj.instruments = ins;
+  obj.youtube = yt;
+
+  if(idx>=0) DATA[idx] = obj; else DATA.push(obj);
+  window.MUSIC_DATA = DATA;
+  saveToLocal();
+  if(typeof renderDetail === "function") renderDetail(CURRENT_DATE);
+  if(typeof renderCalendar === "function") renderCalendar();
+  setEditMode(false);
+}
+
+// Extend renderDetail to prefill fields + keep previous logic
+(function(){
+  const prev = window.renderDetail;
+  window.renderDetail = function(dateStr){
+    CURRENT_DATE = dateStr;
+    if(prev) prev(dateStr);
+    const data = indexByDate(DATA);
+    const item = data.get(dateStr) || {};
+    const get = (k) => item[k] || item[k.toLowerCase()] || "";
+    document.getElementById("editTitre").value   = get("title") || get("titre");
+    document.getElementById("editAuteur").value  = get("author") || get("auteur");
+    document.getElementById("editOrigine").value = get("origin") || get("origine (pays auteur)");
+    document.getElementById("editInstr").value   = get("instruments");
+    document.getElementById("editYT").value      = get("youtube") || get("lien youtube");
+    setEditMode(false);
+    bindEditButtons();
+  };
+})();
+
+// Ensure bindings at startup (if already on a fiche)
+document.addEventListener("DOMContentLoaded", bindEditButtons);
+
+// ===== Router (hash) =====
+function parseHash(){
+  const h = location.hash || "#/";
+  if(h.startsWith("#/date=")){
+    const d = decodeURIComponent(h.slice(7));
+    document.getElementById("viewCalendar").classList.add("hidden");
+    document.getElementById("viewDetail").classList.remove("hidden");
+    renderDetail(d);
+  }else{
+    document.getElementById("viewDetail").classList.add("hidden");
+    document.getElementById("viewCalendar").classList.remove("hidden");
+    renderCalendar();
+  }
+}
+window.addEventListener("hashchange", parseHash);
+parseHash();
+
+// === PATCH: Edit wiring (robuste) ===
+(function(){
+  // Helpers
+  window.MUSIC_DATA = window.MUSIC_DATA || [];
+  function saveToLocal(){ try{ localStorage.setItem("MUSIC_DATA_JSON", JSON.stringify(window.MUSIC_DATA||[])); }catch(e){} }
+  function loadFromLocal(){ try{ const s=localStorage.getItem("MUSIC_DATA_JSON"); if(s){ const a=JSON.parse(s); if(Array.isArray(a)) return a; } }catch(e){} return (window.MUSIC_DATA||[]); }
+  function indexByDate(arr){ const m=new Map(); for(const x of arr){ if(x&&x.date){ m.set(x.date.slice(0,10), x); } } return m; }
+  function htmlEscape(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+  // state
+  window.DATA = window.DATA || loadFromLocal();
+  let CURRENT_DATE = null;
+
+  function setEditMode(on){
+    const fields = document.getElementById("editFields");
+    const btnEdit = document.getElementById("editBtn");
+    const btnSave = document.getElementById("saveBtn");
+    const btnCancel = document.getElementById("cancelBtn");
+    if(fields) fields.classList.toggle("hidden", !on);
+    if(btnSave) btnSave.classList.toggle("hidden", !on);
+    if(btnCancel) btnCancel.classList.toggle("hidden", !on);
+    if(btnEdit) btnEdit.classList.toggle("hidden", on);
+  }
+
+  function saveEdit(){
+    if(!CURRENT_DATE) return;
+    const t   = (document.getElementById("editTitre")?.value   || "").trim();
+    const a   = (document.getElementById("editAuteur")?.value  || "").trim();
+    const o   = (document.getElementById("editOrigine")?.value || "").trim();
+    const ins = (document.getElementById("editInstr")?.value   || "").trim();
+    const yt  = (document.getElementById("editYT")?.value      || "").trim();
+
+    const idx = DATA.findIndex(x => x && x.date && x.date.slice(0,10) === CURRENT_DATE);
+    const obj = idx>=0 ? {...DATA[idx]} : {date: CURRENT_DATE};
+    if(t) { obj.title = t; obj.titre = t; }
+    if(a) { obj.author = a; obj.auteur = a; }
+    obj.origin = o; obj["origine (pays auteur)"] = o;
+    obj.instruments = ins;
+    obj.youtube = yt;
+
+    if(idx>=0) DATA[idx] = obj; else DATA.push(obj);
+    window.MUSIC_DATA = DATA;
+    saveToLocal();
+    if(typeof renderDetail === "function") renderDetail(CURRENT_DATE);
+    if(typeof renderCalendar === "function") renderCalendar();
+    setEditMode(false);
+  }
+
+  function bindEditButtons(){
+    const editBtn = document.getElementById("editBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    if(editBtn && !editBtn.__bound){ editBtn.__bound = true; editBtn.addEventListener("click", ()=> setEditMode(true)); }
+    if(saveBtn && !saveBtn.__bound){ saveBtn.__bound = true; saveBtn.addEventListener("click", saveEdit); }
+    if(cancelBtn && !cancelBtn.__bound){ cancelBtn.__bound = true; cancelBtn.addEventListener("click", ()=> setEditMode(false)); }
+  }
+
+  // Extend renderDetail to prefill & wire
+  const prevRenderDetail = window.renderDetail;
+  window.renderDetail = function(dateStr){
+    CURRENT_DATE = dateStr;
+    if(prevRenderDetail) prevRenderDetail(dateStr);
+    const map = indexByDate(DATA);
+    const item = map.get(dateStr) || {};
+    const get = (k) => item[k] || item[k.toLowerCase()] || "";
+    const et = document.getElementById("editTitre");   if(et) et.value = get("title") || get("titre");
+    const ea = document.getElementById("editAuteur");  if(ea) ea.value = get("author") || get("auteur");
+    const eo = document.getElementById("editOrigine"); if(eo) eo.value = get("origin") || get("origine (pays auteur)");
+    const ei = document.getElementById("editInstr");   if(ei) ei.value = get("instruments");
+    const ey = document.getElementById("editYT");      if(ey) ey.value = get("youtube") || get("lien youtube");
+    setEditMode(false);
+    bindEditButtons();
+  };
+
+  // Initial bind & also try later once (for browsers delaying DOM)
+  document.addEventListener("DOMContentLoaded", ()=>{
+    bindEditButtons();
+    setTimeout(bindEditButtons, 300);
+  });
+})();
+
+</script>
+
+<!-- PATCH v2_fix2: handlers délégués + garde-fous -->
+<script>
+(function(){
+  // Petite aide CSS si "hidden" n'est pas présent (sécurité)
+  try{
+    const st = document.createElement('style');
+    st.textContent = ".hidden{display:none !important;}";
+    document.head.appendChild(st);
+  }catch(e){}
+
+  // Etat courant
+  window.DATA = window.DATA || (function(){
+    try{ const s=localStorage.getItem("MUSIC_DATA_JSON"); if(s){ const a=JSON.parse(s); if(Array.isArray(a)) return a; } }catch(e){}
+    return (window.MUSIC_DATA||[]);
+  })();
+  let CURRENT_DATE = null;
+
+  function saveToLocal(){ try{ localStorage.setItem("MUSIC_DATA_JSON", JSON.stringify(window.DATA||[])); }catch(e){} }
+  function indexByDate(arr){ const m=new Map(); for(const x of arr){ if(x && x.date){ m.set(x.date.slice(0,10), x); } } return m; }
+  function setEditMode(on){
+    const fields = document.getElementById("editFields");
+    const btnEdit = document.getElementById("editBtn");
+    const btnSave = document.getElementById("saveBtn");
+    const btnCancel = document.getElementById("cancelBtn");
+    if(fields) fields.classList.toggle("hidden", !on);
+    if(btnSave) btnSave.classList.toggle("hidden", !on);
+    if(btnCancel) btnCancel.classList.toggle("hidden", !on);
+    if(btnEdit) btnEdit.classList.toggle("hidden", on);
+  }
+  function ensureDetailPrefill(dateStr){
+    CURRENT_DATE = dateStr;
+    const map = indexByDate(window.DATA);
+    const item = map.get(dateStr) || {};
+    const get = (k)=> item[k] || item[k.toLowerCase()] || "";
+    const et = document.getElementById("editTitre");   if(et) et.value = get("title") || get("titre") || "";
+    const ea = document.getElementById("editAuteur");  if(ea) ea.value = get("author") || get("auteur") || "";
+    const eo = document.getElementById("editOrigine"); if(eo) eo.value = get("origin") || get("origine (pays auteur)") || "";
+    const ei = document.getElementById("editInstr");   if(ei) ei.value = get("instruments") || "";
+    const ey = document.getElementById("editYT");      if(ey) ey.value = get("youtube") || get("lien youtube") || "";
+  }
+  // Sur changement de hash -> pré-remplir (au cas où le rendu a eu lieu)
+  window.addEventListener("hashchange", function(){
+    const h = location.hash||"#/";
+    if(h.startsWith("#/date=")){
+      const d = decodeURIComponent(h.slice(7));
+      setTimeout(()=> ensureDetailPrefill(d), 50);
+    }
+  });
+
+  function saveEdit(){
+    if(!CURRENT_DATE) return;
+    const t   = (document.getElementById("editTitre")?.value   || "").trim();
+    const a   = (document.getElementById("editAuteur")?.value  || "").trim();
+    const o   = (document.getElementById("editOrigine")?.value || "").trim();
+    const ins = (document.getElementById("editInstr")?.value   || "").trim();
+    const yt  = (document.getElementById("editYT")?.value      || "").trim();
+
+    const idx = window.DATA.findIndex(x => x && x.date && x.date.slice(0,10) === CURRENT_DATE);
+    const obj = idx>=0 ? {...window.DATA[idx]} : {date: CURRENT_DATE};
+    if(t) { obj.title = t; obj.titre = t; }
+    if(a) { obj.author = a; obj.auteur = a; }
+    obj.origin = o; obj["origine (pays auteur)"] = o;
+    obj.instruments = ins;
+    obj.youtube = yt;
+
+    if(idx>=0) window.DATA[idx] = obj; else window.DATA.push(obj);
+    window.MUSIC_DATA = window.DATA;
+    saveToLocal();
+
+    // Essaie d'appeler les fonctions d'origine si elles existent
+    try{ if(typeof renderDetail === "function") renderDetail(CURRENT_DATE); }catch(e){}
+    try{ if(typeof renderCalendar === "function") renderCalendar(); }catch(e){}
+    setEditMode(false);
+  }
+
+  // Délégation d'événements (fonctionne même si les boutons sont recréés)
+  document.addEventListener("click", function(ev){
+    const id = ev.target && ev.target.id;
+    if(id === "editBtn"){ ev.preventDefault(); setEditMode(true); }
+    if(id === "cancelBtn"){ ev.preventDefault(); setEditMode(false); }
+    if(id === "saveBtn"){ ev.preventDefault(); saveEdit(); }
+  }, true);
+
+  // Au 1er chargement sur une fiche, tente un pré-remplissage
+  document.addEventListener("DOMContentLoaded", function(){
+    if(window.__modernInit) return; window.__modernInit = true;
+    const h = location.hash||"#/";
+    if(h.startsWith("#/date=")){
+      const d = decodeURIComponent(h.slice(7));
+      setTimeout(()=> ensureDetailPrefill(d), 80);
+    }
+  });
+})();
+</script>
+
+
+<!-- EXPORT XLSX (tout & fiche du jour) -->
+<script>
+(function(){
+  function toArray(DATA){
+    const hdr = ["date","titre","auteur","origine (pays auteur)","instruments","youtube"];
+    const rows = [hdr];
+    for(const x of (DATA||[])){
+      rows.push([
+        x.date||"",
+        x.title || x.titre || "",
+        x.author || x.auteur || "",
+        x.origin || x["origine (pays auteur)"] || "",
+        x.instruments || "",
+        x.youtube || x["lien youtube"] || ""
+      ]);
+    }
+    return rows;
+  }
+  function exportAll(){
+    try{
+      const rows = toArray(window.DATA || window.MUSIC_DATA || []);
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "morceaux");
+      XLSX.writeFile(wb, "morceaux_utilises.xlsx");
+    }catch(e){
+      alert("Erreur export : " + e);
+    }
+  }
+  function exportOne(){
+    try{
+      const hdr = ["date","titre","auteur","origine (pays auteur)","instruments","youtube"];
+      const d = (document.getElementById("dateLbl")?.textContent||"").trim();
+      // retrouve la fiche courante dans DATA
+      const arr = window.DATA || window.MUSIC_DATA || [];
+      const item = (arr||[]).find(x=> x && x.date && x.date.slice(0,10)===d) || {};
+      const row = [d, item.title || item.titre || "", item.author || item.auteur || "", item.origin || item["origine (pays auteur)"] || "", item.instruments || "", item.youtube || item["lien youtube"] || ""];
+      const ws = XLSX.utils.aoa_to_sheet([hdr, row]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "fiche");
+      const safeDate = d || "fiche";
+      XLSX.writeFile(wb, `fiche_${safeDate}.xlsx`);
+    }catch(e){
+      alert("Erreur export fiche : " + e);
+    }
+  }
+  // Bind
+  document.addEventListener("click", function(ev){
+    const id = ev.target && ev.target.id;
+    if(id==="navExport"){ ev.preventDefault(); exportAll(); }
+    if(id==="detailExportBtn"){ ev.preventDefault(); exportAll(); }
+    if(id==="detailExportOneBtn"){ ev.preventDefault(); exportOne(); }
+  }, true);
+})();
+</script>
+
+
+<!-- PATCH v2_fix3: source de vérité unique + rafraîchissement immédiat fiche/calendrier + export -->
+<script>
+(function(){
+  // ===== Store unifiée =====
+  function loadStore(){
+    try{ const s = localStorage.getItem("MUSIC_DATA_JSON"); if(s){ const a = JSON.parse(s); if(Array.isArray(a)) return a; } }catch(e){}
+    return (window.MUSIC_DATA || []);
+  }
+  function saveStore(arr){
+    try{ localStorage.setItem("MUSIC_DATA_JSON", JSON.stringify(arr||[])); }catch(e){}
+  }
+  function indexByDate(arr){
+    const m=new Map();
+    for(const x of arr||[]){ if(x && x.date){ m.set(x.date.slice(0,10), x); } }
+    return m;
+  }
+  window.DATA = loadStore(); // unique source
+  window.getDataMap = () => indexByDate(window.DATA);
+
+  // ===== Utilitaires UI =====
+  function toYouTubeEmbed(url){
+    if(!url) return "";
+    try{
+      const u = new URL(url);
+      if(u.hostname.includes("youtu.be")){
+        const id = u.pathname.replace("/","");
+        return "https://www.youtube.com/embed/" + id;
+      }
+      if(u.hostname.includes("youtube.com")){
+        const id = u.searchParams.get("v");
+        if(id) return "https://www.youtube.com/embed/" + id;
+        return "https://www.youtube.com/embed/";
+      }
+    }catch(e){}
+    return "";
+  }
+  function toMapEmbed(place){
+    if(!place) return "";
+    return "https://www.google.com/maps?q=" + encodeURIComponent(place) + "&output=embed";
+  }
+  function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = v || "—"; }
+
+  // ===== Override renderDetail pour forcer la lecture depuis DATA =====
+  const _renderDetailPrev = window.renderDetail;
+  window.renderDetail = function(dateStr){
+    const map = getDataMap();
+    const item = map.get(dateStr) || {};
+    // Champs texte
+    setText("dateLbl", dateStr);
+    setText("titre", typeof displayTitle==="function" ? displayTitle(item) : (item.title || item.titre));
+    setText("auteur", item.author || item.auteur);
+    setText("origine", item.origin || item["origine (pays auteur)"]);
+    setText("instruments", item.instruments);
+    // Médias
+    const yt = item.youtube || item["lien youtube"] || "";
+    const ytFrame = document.getElementById("ytFrame"); if(ytFrame) ytFrame.src = toYouTubeEmbed(yt) || "";
+    const origin = item.origin || item["origine (pays auteur)"] || "";
+    const mapFrame = document.getElementById("mapFrame"); if(mapFrame) mapFrame.src = toMapEmbed(origin) || "";
+    // Pré-remplir édition
+    const et=document.getElementById("editTitre");   if(et) et.value = item.title || item.titre || "";
+    const ea=document.getElementById("editAuteur");  if(ea) ea.value = item.author || item.auteur || "";
+    const eo=document.getElementById("editOrigine"); if(eo) eo.value = item.origin || item["origine (pays auteur)"] || "";
+    const ei=document.getElementById("editInstr");   if(ei) ei.value = item.instruments || "";
+    const ey=document.getElementById("editYT");      if(ey) ey.value = yt;
+    // Appel ancien si besoin (non destructif)
+    if(_renderDetailPrev && _renderDetailPrev!==window.renderDetail){
+      try{ _renderDetailPrev(dateStr); }catch(e){}
+    }
+  };
+
+  // ===== saveEdit fiable (maj DATA + localStorage + UI) =====
+  function showToast(msg){
+    let t = document.getElementById("toastSave");
+    if(!t){
+      t = document.createElement("div");
+      t.id = "toastSave";
+      t.style.position="fixed"; t.style.bottom="16px"; t.style.right="16px";
+      t.style.background="#10b981"; t.style.color="white"; t.style.padding="10px 14px";
+      t.style.borderRadius="12px"; t.style.boxShadow="0 10px 24px rgba(0,0,0,.15)";
+      t.style.fontSize="14px"; t.style.zIndex="9999";
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = "1";
+    setTimeout(()=>{ t.style.transition="opacity .6s"; t.style.opacity="0"; }, 1200);
+  }
+
+  function currentDateFromUI(){
+    return (document.getElementById("dateLbl")?.textContent || "").trim();
+  }
+
+  function saveEdit(){
+    const d = currentDateFromUI();
+    if(!d) return;
+    // lire champs
+    const t   = (document.getElementById("editTitre")?.value   || "").trim();
+    const a   = (document.getElementById("editAuteur")?.value  || "").trim();
+    const o   = (document.getElementById("editOrigine")?.value || "").trim();
+    const ins = (document.getElementById("editInstr")?.value   || "").trim();
+    const yt  = (document.getElementById("editYT")?.value      || "").trim();
+
+    // MAJ dans DATA
+    const idx = window.DATA.findIndex(x => x && x.date && x.date.slice(0,10)===d);
+    const obj = idx>=0 ? {...window.DATA[idx]} : {date: d};
+    if(t) { obj.title = t; obj.titre = t; }
+    if(a) { obj.author = a; obj.auteur = a; }
+    obj.origin = o; obj["origine (pays auteur)"] = o;
+    obj.instruments = ins;
+    obj.youtube = yt;
+    if(idx>=0) window.DATA[idx] = obj; else window.DATA.push(obj);
+
+    // Persistance immédiate
+    saveStore(window.DATA);
+
+    // Rafraîchir UI
+    if(typeof window.renderCalendar === "function"){ try{ window.renderCalendar(); }catch(e){} }
+    try{ window.renderDetail(d); }catch(e){}
+    // Quitter mode édition si bouton présent
+    try{
+      document.getElementById("editFields")?.classList.add("hidden");
+      document.getElementById("saveBtn")?.classList.add("hidden");
+      document.getElementById("cancelBtn")?.classList.add("hidden");
+      document.getElementById("editBtn")?.classList.remove("hidden");
+    }catch(e){}
+    showToast("Enregistré ✅");
+  }
+
+  // Délégation : capte clics sur boutons (Modifier/Enregistrer/Annuler) partout
+  document.addEventListener("click", function(ev){
+    const id = ev.target && ev.target.id;
+    if(id==="saveBtn"){ ev.preventDefault(); saveEdit(); }
+    if(id==="detailExportBtn"){ ev.preventDefault(); exportAll(); }
+    if(id==="detailExportOneBtn"){ ev.preventDefault(); exportOne(); }
+  }, true);
+
+  // ===== Export (tout & fiche) : utilise la DATA unifiée =====
+  function rowsAll(){
+    const hdr = ["date","titre","auteur","origine (pays auteur)","instruments","youtube"];
+    const rows = [hdr];
+    for(const x of (window.DATA||[])){
+      rows.push([
+        x.date||"",
+        x.title || x.titre || "",
+        x.author || x.auteur || "",
+        x.origin || x["origine (pays auteur)"] || "",
+        x.instruments || "",
+        x.youtube || x["lien youtube"] || ""
+      ]);
+    }
+    return rows;
+  }
+  window.exportAll = function(){
+    try{
+      const ws = XLSX.utils.aoa_to_sheet(rowsAll());
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "morceaux");
+      XLSX.writeFile(wb, "morceaux_utilises.xlsx");
+    }catch(e){ alert("Erreur export : " + e); }
+  };
+  window.exportOne = function(){
+    try{
+      const hdr = ["date","titre","auteur","origine (pays auteur)","instruments","youtube"];
+      const d = currentDateFromUI();
+      const map = getDataMap();
+      const item = map.get(d) || {};
+      const row = [d, item.title || item.titre || "", item.author || item.auteur || "", item.origin || item["origine (pays auteur)"] || "", item.instruments || "", item.youtube || item["lien youtube"] || ""];
+      const ws = XLSX.utils.aoa_to_sheet([hdr, row]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "fiche");
+      XLSX.writeFile(wb, `fiche_${d||"jour"}.xlsx`);
+    }catch(e){ alert("Erreur export fiche : " + e); }
+  };
+
+  // Si on arrive sur une fiche, garantit la lecture depuis DATA pour l'affichage initial
+  window.addEventListener("hashchange", function(){
+    const h = location.hash || "#/";
+    if(h.startsWith("#/date=")){
+      const d = decodeURIComponent(h.slice(7));
+      setTimeout(()=> window.renderDetail(d), 50);
+    }
+  });
+  // Si déjà sur une fiche au chargement
+  document.addEventListener("DOMContentLoaded", function(){
+    if(window.__modernInit) return; window.__modernInit = true;
+    const h = location.hash || "#/";
+    if(h.startsWith("#/date=")){
+      const d = decodeURIComponent(h.slice(7));
+      setTimeout(()=> window.renderDetail(d), 80);
+    }
+  });
+})();
+</script>
+
+
+<!-- FIX4: boutons d'édition toujours visibles et fonctionnels -->
+<script>
+(function(){
+  function setEditMode(on){
+    const fields = document.getElementById("editFields");
+    const btnEdit = document.getElementById("editBtn");
+    const btnSave = document.getElementById("saveBtn");
+    const btnCancel = document.getElementById("cancelBtn");
+    if(fields) fields.classList.toggle("hidden", !on);
+    if(btnSave) btnSave.classList.toggle("hidden", !on);
+    if(btnCancel) btnCancel.classList.toggle("hidden", !on);
+    if(btnEdit) btnEdit.classList.toggle("hidden", on);
+  }
+
+  // Délégation: gère les clics même si la fiche est re-rendue
+  document.addEventListener("click", function(ev){
+    const id = ev.target && ev.target.id;
+    if(id==="editBtn"){ ev.preventDefault(); setEditMode(true); }
+    if(id==="cancelBtn"){ ev.preventDefault(); setEditMode(false); }
+    if(id==="saveBtn"){ ev.preventDefault(); if(window.saveEdit) window.saveEdit(); }
+  }, true);
+
+  // Afficher la barre d'édition si on arrive sur une fiche
+  function ensureToolbar(){
+    const toolbar = document.getElementById("editBtn");
+    if(!toolbar){
+      // rien à faire, la fiche n'est peut-être pas affichée encore
+    }
+  }
+  document.addEventListener("DOMContentLoaded", ensureToolbar);
+  window.addEventListener("hashchange", ensureToolbar);
+})();
+</script>
+
+
+<!-- FIX5: Bouton Enregistrer toujours visible en mode édition + sauvegarde globale accessible -->
+<style>
+  /* Barre flottante d'action (optionnelle) */
+  #saveBar{position:fixed; right:16px; bottom:16px; z-index:10000; display:none;}
+  #saveBar .btn{background:#059669; color:#fff; padding:10px 14px; border-radius:12px; box-shadow:0 10px 24px rgba(0,0,0,.15); font-weight:600;}
+</style>
+<div id="saveBar"><button id="saveBarBtn" class="btn">💾 Enregistrer</button></div>
+
+<script>
+(function(){
+  // Expose une API de sauvegarde globale si absente
+  if(typeof window.saveEdit !== "function"){
+    window.saveEdit = function(){
+      // Récupère la date depuis l'UI
+      const d = (document.getElementById("dateLbl")?.textContent || "").trim();
+      if(!d) return;
+      // Lecture des champs
+      const t   = (document.getElementById("editTitre")?.value   || "").trim();
+      const a   = (document.getElementById("editAuteur")?.value  || "").trim();
+      const o   = (document.getElementById("editOrigine")?.value || "").trim();
+      const ins = (document.getElementById("editInstr")?.value   || "").trim();
+      const yt  = (document.getElementById("editYT")?.value      || "").trim();
+      // Charge/MAJ DATA
+      let DATA = [];
+      try{ const s=localStorage.getItem("MUSIC_DATA_JSON"); if(s){ const arr=JSON.parse(s); if(Array.isArray(arr)) DATA = arr; } }catch(e){}
+      if(!Array.isArray(DATA) || !DATA) DATA = (window.DATA||window.MUSIC_DATA||[]);
+      const idx = DATA.findIndex(x => x && x.date && x.date.slice(0,10)===d);
+      const oobj = idx>=0 ? {...DATA[idx]} : {date:d};
+      if(t) { oobj.title=t; oobj.titre=t; }
+      if(a) { oobj.author=a; oobj.auteur=a; }
+      oobj.origin=o; oobj["origine (pays auteur)"]=o;
+      oobj.instruments=ins;
+      oobj.youtube=yt;
+      if(idx>=0) DATA[idx]=oobj; else DATA.push(oobj);
+      try{ localStorage.setItem("MUSIC_DATA_JSON", JSON.stringify(DATA)); }catch(e){}
+      window.DATA = DATA; window.MUSIC_DATA = DATA;
+
+      // Rafraîchir fiches + calendrier si dispo
+      try{ if(typeof window.renderCalendar==="function") window.renderCalendar(); }catch(e){}
+      try{ if(typeof window.renderDetail==="function") window.renderDetail(d); }catch(e){}
+
+      // Quitter mode édition visuellement
+      try{
+        document.getElementById("editFields")?.classList.add("hidden");
+        document.getElementById("saveBtn")?.classList.add("hidden");
+        document.getElementById("cancelBtn")?.classList.add("hidden");
+        document.getElementById("editBtn")?.classList.remove("hidden");
+        document.getElementById("saveBar").style.display="none";
+      }catch(e){}
+    };
+  }
+
+  // Force l'affichage des boutons d'édition quand on passe en mode édition
+  function setEditMode(on){
+    const fields = document.getElementById("editFields");
+    const btnEdit = document.getElementById("editBtn");
+    const btnSave = document.getElementById("saveBtn");
+    const btnCancel = document.getElementById("cancelBtn");
+    if(fields) fields.classList.toggle("hidden", !on);
+    if(btnSave) btnSave.classList.toggle("hidden", !on);
+    if(btnCancel) btnCancel.classList.toggle("hidden", !on);
+    if(btnEdit) btnEdit.classList.toggle("hidden", on);
+    // Affiche la barre flottante
+    const bar = document.getElementById("saveBar");
+    if(bar) bar.style.display = on ? "block" : "none";
+  }
+  // Délégation de clics
+  document.addEventListener("click", function(ev){
+    const id = ev.target && ev.target.id;
+    if(id==="editBtn"){ ev.preventDefault(); setEditMode(true); }
+    if(id==="cancelBtn"){ ev.preventDefault(); setEditMode(false); }
+    if(id==="saveBtn"){ ev.preventDefault(); window.saveEdit(); }
+    if(id==="saveBarBtn"){ ev.preventDefault(); window.saveEdit(); }
+  }, true);
+
+  // Dès qu'on modifie un champ, s'assurer que les boutons de sauvegarde sont visibles
+  function onAnyEdit(){
+    setEditMode(true);
+  }
+  ["editTitre","editAuteur","editOrigine","editInstr","editYT"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener("input", onAnyEdit);
+      el.addEventListener("change", onAnyEdit);
+    }
+  });
+  // En cas de rerendu de la fiche, rebrancher les handlers rapidement
+  window.addEventListener("hashchange", ()=>{
+    setTimeout(()=>{
+      ["editTitre","editAuteur","editOrigine","editInstr","editYT"].forEach(id=>{
+        const el = document.getElementById(id);
+        if(el){
+          el.addEventListener("input", onAnyEdit);
+          el.addEventListener("change", onAnyEdit);
+        }
+      });
+    }, 80);
+  });
+})();
+</script>
+
+
+<script>
+// === Flags: affichage robuste des drapeaux ===
+(function(){
+  const COUNTRY_MAP = {
+    "france":"FR","espagne":"ES","italie":"IT","allemagne":"DE","autriche":"AT","royaume-uni":"GB","royaume uni":"GB","angleterre":"GB","uk":"GB","grande-bretagne":"GB","irlande":"IE","pologne":"PL","hongrie":"HU","république tchèque":"CZ","tchéquie":"CZ","slovaquie":"SK","russie":"RU","ukraine":"UA","finlande":"FI","norvège":"NO","suède":"SE","danemark":"DK","pays-bas":"NL","hollande":"NL","belgique":"BE","suisse":"CH","portugal":"PT","grèce":"GR","turquie":"TR","états-unis":"US","etats-unis":"US","états unis":"US","usa":"US","canada":"CA","mexique":"MX","brésil":"BR","argentine":"AR","chili":"CL","pérou":"PE","bolivie":"BO","colombie":"CO","équateur":"EC","paraguay":"PY","uruguay":"UY","chine":"CN","japon":"JP","corée du sud":"KR","corée":"KR","inde":"IN","indonésie":"ID","australie":"AU","nouvelle-zélande":"NZ","islande":"IS","roumanie":"RO","bulgarie":"BG","serbie":"RS","croatie":"HR","slovénie":"SI","lituanie":"LT","lettonie":"LV","estonie":"EE","luxembourg":"LU","malte":"MT","chypre":"CY","arménie":"AM","géorgie":"GE","israël":"IL","israel":"IL","égypte":"EG","egypte":"EG","maroc":"MA","tunisie":"TN","algérie":"DZ","cuba":"CU","cap-vert":"CV","cap vert":"CV","bosnie":"BA","bosnie-herzégovine":"BA","cameroun":"CM","nigeria":"NG","nigéria":"NG","ghana":"GH","sénégal":"SN","mali":"ML","guinée":"GN","guinée-bissau":"GW","côte d'ivoire":"CI","cote d ivoire":"CI","afrique du sud":"ZA","namibie":"NA","kenya":"KE","tanzanie":"TZ","ouganda":"UG","rwanda":"RW","république démocratique du congo":"CD","rd congo":"CD","congo":"CG","mozambique":"MZ","zimbabwe":"ZW","zambie":"ZM","angola":"AO","éthiopie":"ET","madagascar":"MG","maurice":"MU","jamaïque":"JM","haïti":"HT","honduras":"HN","nicaragua":"NI","guatemala":"GT","costa rica":"CR","panama":"PA","république dominicaine":"DO","portorico":"PR","portorico":"PR","iran":"IR","irak":"IQ","liban":"LB","syrie":"SY","jordanie":"JO","arabie saoudite":"SA","émirats arabes unis":"AE","israël":"IL","palestine":"PS","mongolie":"MN","vietnam":"VN","thaïlande":"TH","philippines":"PH","malaisie":"MY","singapour":"SG","népal":"NP","pakistan":"PK","bangladesh":"BD","sri lanka":"LK","afghanistan":"AF","kazakhstan":"KZ","ouzbékistan":"UZ","azerbaïdjan":"AZ","australie":"AU","papouasie-nouvelle-guinée":"PG","fidji":"FJ","hawaï":"US","hawai":"US"
+  };
+  function clean(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’']/g," ").replace(/[-_,;()]/g,' ').replace(/\s+/g,' ').trim(); }
+  const MAP = new Map(Object.entries(COUNTRY_MAP).map(([k,v])=>[clean(k),v]));
+  function extractCountryCode(origin){
+    const s=clean(origin);
+    if(!s || s==='—') return '';
+    if(/^[a-z]{2}$/.test(s)) return s.toUpperCase();
+    if(MAP.has(s)) return MAP.get(s);
+    // Cherche le nom du pays dans une chaîne plus longue.
+    for(const [name,code] of MAP){ if(name && (s===name || s.includes(name))) return code; }
+    return '';
+  }
+  function refreshFlag(origin){
+    const el=document.getElementById('flagIcon'); if(!el) return;
+    const code=extractCountryCode(origin);
+    el.innerHTML='';
+    if(!code){ el.textContent='🏳️'; el.title='Pays non reconnu'; return; }
+    // Image réelle : évite les drapeaux monochromes/blancs selon la police du système.
+    const img=document.createElement('img');
+    img.src='https://flagcdn.com/w40/'+code.toLowerCase()+'.png';
+    img.alt=code; img.title=code;
+    img.width=40; img.height=27;
+    img.style.cssText='width:40px;height:27px;object-fit:cover;border-radius:3px;display:inline-block;vertical-align:middle;box-shadow:0 1px 3px rgba(0,0,0,.25)';
+    img.onerror=()=>{ el.textContent=toFlagEmoji(code); };
+    el.appendChild(img);
+  }
+  function toFlagEmoji(code){ const A=0x1F1E6; return String.fromCodePoint(A+code.charCodeAt(0)-65,A+code.charCodeAt(1)-65); }
+  const prev=window.renderDetail;
+  window.renderDetail=function(dateStr){
+    if(typeof prev==='function') prev(dateStr);
+    setTimeout(()=>{ const o=document.getElementById('origine')?.textContent||''; refreshFlag(o); },0);
+  };
+  window.__refreshFlag=refreshFlag;
+  document.addEventListener('DOMContentLoaded',()=>{ const o=document.getElementById('origine')?.textContent||''; if(o&&o!=='—') refreshFlag(o); });
+})();
+</script>
+
+
+<script>
+// === Lien Wikipédia cliquable sur l'auteur ===
+(function(){
+  function cacheGet(k){ try{ const s=localStorage.getItem(k); return s? JSON.parse(s): null; }catch(e){ return null; } }
+  function cacheSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+  async function wikipediaPageUrlFR(author){
+    const url = "https://fr.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=info&inprop=url&titles=" + encodeURIComponent(author);
+    const r = await fetch(url);
+    if(!r.ok) return null;
+    const j = await r.json();
+    const pages = j?.query?.pages || {};
+    const first = Object.values(pages)[0];
+    if(first && first.fullurl && !/Special:Search/.test(first.fullurl)) return first.fullurl;
+    return null;
+  }
+  async function wikipediaPageUrlEN(author){
+    const url = "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=info&inprop=url&titles=" + encodeURIComponent(author);
+    const r = await fetch(url);
+    if(!r.ok) return null;
+    const j = await r.json();
+    const pages = j?.query?.pages || {};
+    const first = Object.values(pages)[0];
+    if(first && first.fullurl && !/Special:Search/.test(first.fullurl)) return first.fullurl;
+    return null;
+  }
+
+  async function getWikipediaUrl(author){
+    const key = "WIKI_URL_" + author.toLowerCase();
+    const cached = cacheGet(key);
+    if(cached) return cached;
+    // FR then EN
+    let url = await wikipediaPageUrlFR(author);
+    if(!url) url = await wikipediaPageUrlEN(author);
+    if(!url) url = null;
+    cacheSet(key, url);
+    return url;
+  }
+
+  async function setAuthorLink(author){
+    const el = document.getElementById("auteur");
+    if(!el){ return; }
+    const name = (author||"").trim();
+    if(!name){ el.textContent = "—"; return; }
+    // Put a temporary text while resolving
+    el.textContent = name;
+    try{
+      const page = await getWikipediaUrl(name);
+      if(page){
+        el.innerHTML = '<a href="'+page.replace(/"/g,'&quot;')+'" target="_blank" class="underline text-indigo-600 hover:text-indigo-800">'+name+' ↗</a>';
+      }else{
+        el.textContent = name; // no link found
+      }
+    }catch(e){
+      el.textContent = name;
+    }
+  }
+
+  // Hook into renderDetail so it updates the author field as a link
+  const prevRenderDetail = window.renderDetail;
+  window.renderDetail = function(dateStr){
+    if(prevRenderDetail) prevRenderDetail(dateStr);
+    const author = (document.getElementById("auteur")?.textContent || "").trim();
+    setAuthorLink(author);
+  };
+
+  // After saveEdit, re-apply link in case author changed
+  const prevSave = window.saveEdit;
+  window.saveEdit = async function(){
+    if(prevSave) prevSave();
+    const author = (document.getElementById("auteur")?.textContent || "").trim();
+    setAuthorLink(author);
+  };
+
+  // If opening directly on a fiche
+  document.addEventListener("DOMContentLoaded", ()=>{
+    const h = location.hash || "#/";
+    if(h.startsWith("#/date=")){
+      setTimeout(()=>{
+        const author = (document.getElementById("auteur")?.textContent || "").trim();
+        setAuthorLink(author);
+      }, 120);
+    }
+  });
+})();
+</script>
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  var detail = document.getElementById("viewDetail");
+  if(detail){
+    var btn = detail.querySelector("#editBtn");
+    if(btn && btn.parentElement){ btn.parentElement.removeChild(btn); }
+  }
+});
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  try{
+    // Supprimer les boutons d'export s'ils apparaissent
+    ["#navExport", "#detailExportBtn", "#detailExportOneBtn"].forEach(function(sel){
+      document.querySelectorAll(sel).forEach(function(n){
+        if(n && n.parentElement) n.parentElement.removeChild(n);
+      });
+    });
+    // Cacher proprement l'UI d'import (sans retirer la section contenant le calendrier)
+    var f = document.getElementById("file");
+    if(f){
+      f.style.display = "none";
+      var lbl = document.querySelector('label[for="file"]');
+      if(lbl) lbl.style.display = "none";
+      var btn = document.querySelector('button[for="file"]');
+      if(btn) btn.style.display = "none";
+      var banners = document.querySelectorAll("#importBanner, .import-banner, .import-controls, [data-import='true']");
+      banners.forEach(function(b){ b.style.display = "none"; });
+    }
+  }catch(e){}
+});
+</script>
+
+
+<!-- LOCK FUTURE DAYS (student) — les morceaux restent accessibles dès le jour J et tous les jours suivants -->
+<script>
+(function(){
+  function parisTodayYmd(){
+    const s = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Paris', hour12:false });
+    return s.slice(0,10);
+  }
+  function pad(n){ return String(n).padStart(2,"0"); }
+  function isPastDay(ymd){
+    const today = parisTodayYmd();
+    // Débloqué le jour J ET reste définitivement accessible après le jour J.
+    // Seuls les jours futurs sont verrouillés.
+    return (ymd <= today);
+  }
+  function q(id){ return document.getElementById(id); }
+
+  const _renderCalendarPrev = window.renderCalendar;
+  window.renderCalendar = function(){
+    const grid = q("grid");
+    const list = q("list");
+    const monthLbl = q("monthLbl");
+    const yearLbl = q("yearLbl");
+    const badgeMonth = q("badgeMonth");
+    let y = (typeof curY!=="undefined") ? curY : (new Date()).getFullYear();
+    let m = (typeof curM!=="undefined") ? curM : (new Date()).getMonth();
+
+    function monthLabel(y,m){
+      const noms=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+      return noms[m]+" "+y;
+    }
+
+    const DATA = (window.DATA || window.MUSIC_DATA || []);
+    const map = new Map();
+    for(const x of DATA){
+      if(x && x.date){
+        map.set(String(x.date).slice(0,10), x);
+      }
+    }
+
+    monthLbl && (monthLbl.textContent = monthLabel(y, m));
+    yearLbl && (yearLbl.textContent = y + "–" + (y+1));
+    badgeMonth && (badgeMonth.textContent = monthLabel(y, m));
+
+    if(grid) grid.innerHTML = "";
+    if(list) list.innerHTML = "";
+
+    const first = new Date(Date.UTC(y, m, 1));
+    const startDay = (first.getUTCDay() + 6) % 7; // Lundi=0
+    const daysInMonth = new Date(Date.UTC(y, m+1, 0)).getUTCDate();
+
+    for(let i=0;i<startDay;i++){
+      const div = document.createElement("div");
+      div.className = "day rounded-xl bg-slate-100 border";
+      grid && grid.appendChild(div);
+    }
+
+    let usedThisMonth = 0;
+    const today = parisTodayYmd();
+
+    for(let d=1; d<=daysInMonth; d++){
+      const dateStr = `${y}-${pad(m+1)}-${pad(d)}`;
+      const item = map.get(dateStr);
+      const has = !!item;
+      const past = isPastDay(dateStr);
+
+      const cell = document.createElement("button");
+      cell.type="button";
+      cell.dataset.date = dateStr;
+      let baseCls = "day rounded-xl border w-full text-left p-2 ";
+      if(has && past){
+        baseCls += "bg-emerald-50 border-emerald-200";
+      }else if(has && !past){
+        baseCls += "bg-slate-100 border-slate-200 opacity-70";
+      }else{
+        baseCls += "bg-white";
+      }
+      cell.className = baseCls;
+
+      const title = item ? (typeof displayTitle==="function" ? displayTitle(item) : (item.title || item.titre || "Titre")) : "";
+      const author = item ? (item.author || item.auteur || "") : "";
+      const lockedLabel = (!past && has) ? `<div class="mt-1 text-xs text-amber-700">🔒 À découvrir ce jour-là</div>` : "";
+      cell.innerHTML = `<div class="text-xs text-slate-500">${d}</div>`
+        + (has
+          ? (past
+              ? `<div class="mt-1 font-semibold text-sm line-clamp-3">${title}</div><div class="text-xs text-slate-500 line-clamp-1">${author}</div>`
+              : lockedLabel)
+          : `<div class="text-xs text-slate-400 mt-1">—</div>`);
+
+      cell.addEventListener("click", (ev)=>{
+        if(has && past){
+          location.hash = "#/date=" + dateStr;
+        }else if(has && !past){
+          ev.preventDefault();
+          showToast("Cette fiche sera disponible après la journée 🎧");
+        }
+      }, true);
+
+      grid && grid.appendChild(cell);
+
+      if(has){
+        usedThisMonth++;
+        const row = document.createElement("div");
+        row.className = "px-2 py-1 rounded text-sm flex items-center justify-between " + (past ? "hover:bg-slate-50" : "opacity-70");
+        // >>> For future days, hide the real info in the list:
+        const leftText = past
+          ? `<span class="text-slate-500 text-xs">${dateStr}</span> — <b>${title}</b> <span class="text-slate-600">(${author})</span>`
+          : `<span class="text-slate-500 text-xs">${dateStr}</span> — <i>À découvrir ce jour-là</i>`;
+        const right = past
+          ? `<a class="text-indigo-600 underline text-xs" href="#/date=${encodeURIComponent(dateStr)}">ouvrir</a>`
+          : `<span class="text-amber-700 text-xs">🔒 verrouillé</span>`;
+        row.innerHTML = `<div>${leftText}</div>${right}`;
+        list && list.appendChild(row);
+      }
+    }
+    const countMonth = q("countMonth");
+    countMonth && (countMonth.textContent = usedThisMonth);
+  };
+
+  const _parseHashPrev = window.parseHash;
+  window.parseHash = function(){
+    const h = location.hash || "#/";
+    if(h.startsWith("#/date=")){
+      const d = decodeURIComponent(h.slice(7));
+      if(!(d <= parisTodayYmd())){
+        location.replace("#/");
+        setTimeout(()=> showToast("Fiche disponible après la journée 🎧"), 30);
+        return;
+      }
+    }
+    if(typeof _parseHashPrev === "function"){
+      return _parseHashPrev();
+    }
+  };
+
+  function showToast(msg){
+    let t = document.getElementById("toastLock");
+    if(!t){
+      t = document.createElement("div");
+      t.id = "toastLock";
+      Object.assign(t.style, {
+        position:"fixed", bottom:"16px", right:"16px", background:"#f59e0b", color:"#fff",
+        padding:"10px 14px", borderRadius:"12px", boxShadow:"0 10px 24px rgba(0,0,0,.15)",
+        fontWeight:"600", zIndex:"99999", transition:"opacity .6s"
+      });
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = "1";
+    setTimeout(()=>{ t.style.opacity="0"; }, 1400);
+  }
+
+  window.addEventListener("hashchange", window.parseHash, true);
+  document.addEventListener("DOMContentLoaded", function(){
+    if(window.__modernInit) return; window.__modernInit = true;
+    try { window.renderCalendar(); } catch(e){}
+    setTimeout(()=> { try{ window.parseHash(); }catch(e){} }, 20);
+  });
+})();
+</script>
+
+
+<!-- Force FR date display (JJ-MM-AAAA) in calendar & detail -->
+<script>
+(function(){
+  function toFR(iso){
+    if(!iso || typeof iso!=="string") return iso||"";
+    const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!m) return iso;
+    return `${m[3]}-${m[2]}-${m[1]}`;
+  }
+  function replaceDateTextIn(root){
+    if(!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    const nodes = [];
+    while(walker.nextNode()){ nodes.push(walker.currentNode); }
+    for(const n of nodes){
+      const t = n.nodeValue;
+      if(!t) continue;
+      const newT = t.replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, (m,y,mo,d)=> `${d}-${mo}-${y}`);
+      if(newT !== t) n.nodeValue = newT;
+    }
+  }
+  function patchAreas(){
+    // calendar/list containers commonly used in these files
+    const ids = ["grid","list","viewCalendar","viewDetail","app","root","content"];
+    ids.forEach(id => { const el = document.getElementById(id); if(el) replaceDateTextIn(el); });
+  }
+  // Wrap renderCalendar to enforce FR formatting after each render
+  const _rc = window.renderCalendar;
+  window.renderCalendar = function(){
+    try{ if(typeof _rc === "function") _rc.apply(this, arguments); }catch(e){}
+    patchAreas();
+    setTimeout(patchAreas, 25);
+    setTimeout(patchAreas, 120);
+  };
+  // Wrap renderDetail similarly
+  const _rd = window.renderDetail;
+  window.renderDetail = function(){
+    try{ if(typeof _rd === "function") _rd.apply(this, arguments); }catch(e){}
+    const detail = document.getElementById("viewDetail") || document.body;
+    replaceDateTextIn(detail);
+    setTimeout(()=> replaceDateTextIn(detail), 60);
+  };
+  // Also handle initial load and navigation
+  document.addEventListener("DOMContentLoaded", ()=>{
+    patchAreas();
+    setTimeout(patchAreas, 30);
+  });
+  window.addEventListener("hashchange", ()=>{
+    patchAreas();
+    setTimeout(patchAreas, 30);
+  }, true);
+  // Observe for dynamic mutations
+  const obs = new MutationObserver(()=>{ patchAreas(); });
+  obs.observe(document.documentElement, {subtree:true, childList:true});
+})();
+</script>
+
+
+<!-- === AUTOLOAD : musique.xlsx avec année séparée === -->
+<script>
+(function(){
+  "use strict";
+  // PATCH DATE XLSX : les dates Excel sont traitées comme des dates calendaires, sans fuseau horaire.
+
+  function ensureStatus(){
+    return document.getElementById("importStatus");
+  }
+  function status(msg, kind){
+    const el=ensureStatus();
+    if(el){
+      el.textContent=msg;
+      el.className="text-xs mt-1";
+      if(kind==="error") el.style.color="#fca5a5";
+      else if(kind==="ok") el.style.color="#67e8f9";
+      else el.style.color="#fbbf24";
+    }
+  }
+
+  function excelSerialToISO(n){
+    const epoch=Date.UTC(1899,11,30);
+    const d=new Date(epoch + Math.round(Number(n)*86400*1000));
+    if(isNaN(d)) return "";
+    return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate());
+  }
+
+  function toISO(value){
+    if(value==null || value==="") return "";
+
+    // Pour musique.xlsx, on ne convertit plus les dates Excel en objet Date.
+    // Le numéro de série Excel est converti directement en date UTC :
+    // cela évite tout décalage d'un jour lié au fuseau horaire du navigateur.
+    if(typeof value==="number") return excelSerialToISO(value);
+
+    if(value instanceof Date && !isNaN(value)){
+      return value.getUTCFullYear()+"-"+pad(value.getUTCMonth()+1)+"-"+pad(value.getUTCDate());
+    }
+
+    const v=String(value).trim();
+    let m=v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+    if(m) return m[3]+"-"+pad(m[2])+"-"+pad(m[1]);
+
+    m=v.match(/^(\d{4})[\/.-](\d{1,2})[\/.-](\d{1,2})/);
+    if(m) return m[1]+"-"+pad(m[2])+"-"+pad(m[3]);
+
+    const d=new Date(v);
+    return isNaN(d) ? "" : d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+  }
+
+  function normalizeYear(value){
+    if(value==null || value==="") return "";
+    if(typeof value==="number" && isFinite(value)) return String(Math.trunc(value));
+    const m=String(value).match(/\b(1[0-9]{3}|20[0-9]{2}|21[0-9]{2})\b/);
+    return m ? m[1] : String(value).trim();
+  }
+
+  async function load(){
+    status("Chargement automatique de « musique.xlsx »…","wait");
+
+    try{
+      if(typeof XLSX==="undefined") throw new Error("Bibliothèque XLSX indisponible.");
+
+      const response=await fetch("musique.xlsx?ts="+Date.now(),{cache:"no-store"});
+      if(!response.ok) throw new Error("musique.xlsx introuvable ("+response.status+").");
+
+      const wb=XLSX.read(await response.arrayBuffer(),{type:"array",cellDates:false});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+
+      if(!rows.length) throw new Error("Le fichier est vide.");
+
+      const headerInfo=findHeaderRow(rows);
+      const map=headerInfo.map;
+      const headerRow=headerInfo.index;
+
+      if(map.date<0 || map.titre<0 || map.auteur<0){
+        const detected=(rows[headerRow]||[]).map(v=>String(v??"").trim()).filter(Boolean).join(" | ");
+        throw new Error("Colonnes requises absentes. En-têtes détectés : " + (detected || "aucun"));
+      }
+
+      const fresh=[];
+      for(const row of rows.slice(headerRow+1)){
+        const date=toISO(row[map.date]);
+        const title=norm(row[map.titre]);
+        const author=norm(row[map.auteur]);
+        if(!date || !title) continue;
+
+        const year=map.year>=0 ? normalizeYear(row[map.year]) : "";
+
+        fresh.push({
+          date,
+          title,
+          titre:title,
+          author,
+          auteur:author,
+          year,
+          annee:year,
+          "année":year,
+          origin:map.origin>=0 ? norm(row[map.origin]) : "",
+          instruments:map.instr>=0 ? norm(row[map.instr]) : "",
+          youtube:map.yt>=0 ? norm(row[map.yt]) : ""
+        });
+      }
+
+      fresh.sort((a,b)=>a.date.localeCompare(b.date));
+
+      // Le nouveau musique.xlsx devient la source de vérité :
+      // on remplace entièrement les anciennes données locales.
+      DATA=fresh;
+      window.DATA=fresh;
+      window.MUSIC_DATA=fresh;
+      dataMap=indexByDate(fresh);
+
+      try{ localStorage.setItem("MUSIC_DATA_JSON",JSON.stringify(fresh)); }catch(e){}
+
+      if(typeof renderCalendar==="function") renderCalendar();
+
+      if((location.hash||"").startsWith("#/date=")){
+        const d=decodeURIComponent(location.hash.slice(7));
+        if(typeof renderDetail==="function") renderDetail(d);
+      }
+
+      status("✓ musique.xlsx chargé : "+fresh.length+" morceaux.","ok");
+    }catch(error){
+      console.error("Chargement de musique.xlsx :",error);
+      status("⚠ "+error.message,"error");
+    }
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",()=>setTimeout(load,250),{once:true});
+  }else{
+    setTimeout(load,250);
+  }
+})();
+</script>
+<!-- === /AUTOLOAD PATCH v6 === -->
+
+<!-- === PATCH: Wiki links for instruments + Click-to-zoom author image === -->
+<style>
+/* Lightbox overlay */
+#imgLightbox{ position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:99999; }
+#imgLightbox img{ max-width:92vw; max-height:92vh; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.5); object-fit:contain; }
+#imgLightbox img.zoom-flag{ width:50vw; max-width:50vw; height:auto; max-height:70vh; object-fit:contain; }
+@media (max-width:700px){ #imgLightbox img.zoom-flag{ width:82vw; max-width:82vw; max-height:55vh; } }
+#imgLightbox .close{ position:absolute; top:16px; right:16px; font-size:28px; color:#fff; cursor:pointer; }
+</style>
+<div id="imgLightbox" role="dialog" aria-modal="true" aria-label="Agrandissement image">
+  <span class="close" title="Fermer">✕</span>
+  <img id="imgLightboxImg" src="" alt="Agrandissement"/>
+</div>
+<script>
+(function(){
+  // Transforme la liste d'instruments en liens Wikipédia (FR)
+  function wikiLinkifyInstruments(text){
+    if(!text) return "—";
+    const parts = String(text).split(/[,;\/]/).map(s => s.trim()).filter(Boolean);
+    if(!parts.length) return "—";
+    const makeUrl = (name)=> "https://fr.wikipedia.org/wiki/" + encodeURIComponent(name.replace(/\s+/g, "_"));
+    return parts.map(name => '<a class="link" href="'+makeUrl(name)+'" target="_blank" rel="noopener noreferrer">'+name+'</a>').join(", ");
+  }
+
+  // Essaie de dériver l'URL d'origine (pleine définition) depuis une miniature Wikimedia
+  function getFullImageFromThumb(url){
+    try{
+      if(!url) return "";
+      const u = new URL(url);
+      // Miniatures Wikimedia: .../thumb/<path>/<filename>/<W>px-<filename>
+      if(u.hostname.includes("wikimedia.org") && u.pathname.includes("/thumb/")){
+        const parts = u.pathname.split("/thumb/");
+        const left = parts[0]; // /wikipedia/commons
+        const rest = parts[1]; // a/ab/Filename.jpg/400px-Filename.jpg
+        const idx = rest.lastIndexOf("/");
+        if(idx > -1){
+          const basePath = rest.substring(0, idx); // a/ab/Filename.jpg
+          return u.origin + left + "/" + basePath;
+        }
+      }
+    }catch(e){}
+    // fallback: retourne l'URL donnée
+    return url;
+  }
+
+  // Lightbox pour l'image auteur
+  function setupAuthorImageZoom(){
+    const img = document.getElementById("authorImg");
+    const flag = document.getElementById("flagIcon");
+    const box = document.getElementById("imgLightbox");
+    const big = document.getElementById("imgLightboxImg");
+    const close = box ? box.querySelector(".close") : null;
+    if(!box || !big) return;
+
+    // Évite de réinstaller plusieurs fois les mêmes gestionnaires lors des changements de fiche.
+    if(box.dataset.zoomBound !== "1"){
+      box.dataset.zoomBound = "1";
+      function closeBox(){
+        box.style.display = "none";
+        big.setAttribute("src","");
+      }
+      if(close) close.addEventListener("click", closeBox);
+      box.addEventListener("click", function(ev){
+        if(ev.target===box) closeBox();
+      });
+      document.addEventListener("keydown", function(ev){
+        if(ev.key==="Escape") closeBox();
+      });
+    }
+
+    function bind(target, kind){
+      if(!target || target.dataset.zoomBound === "1") return;
+      target.dataset.zoomBound = "1";
+      target.style.cursor = "zoom-in";
+      target.title = kind === "flag" ? "Cliquer pour agrandir le drapeau" : "Cliquer pour agrandir la photo";
+      target.addEventListener("click", function(){
+        const src = target.getAttribute("src") || "";
+        if(!src) return;
+        const hi = getFullImageFromThumb(src);
+        big.setAttribute("src", hi || src);
+        big.classList.toggle("zoom-flag", kind === "flag");
+        big.alt = target.alt || (kind === "flag" ? "Drapeau" : "Photo de l'artiste");
+        box.style.display = "flex";
+      });
+    }
+
+    bind(img, "photo");
+    // Le drapeau est généré dynamiquement : on cible aussi l'image qu'il contient.
+    const flagImg = flag ? flag.querySelector("img") : null;
+    bind(flagImg, "flag");
+  }
+
+  function observeFlagForZoom(){
+    const flag = document.getElementById("flagIcon");
+    if(!flag || flag.dataset.zoomObserver === "1") return;
+    flag.dataset.zoomObserver = "1";
+    const obs = new MutationObserver(function(){ setupAuthorImageZoom(); });
+    obs.observe(flag, {childList:true, subtree:true});
+  }
+
+  // Surcouche finale de renderDetail : ajoute liens Wikipedia aux instruments
+  (function(){
+    const prev = window.renderDetail;
+    window.renderDetail = function(dateStr){
+      if(prev) prev(dateStr);
+      try{
+        const el = document.getElementById("instruments");
+        if(el){
+          const raw = el.textContent || el.innerText || "";
+          el.innerHTML = wikiLinkifyInstruments(raw);
+        }
+      }catch(e){}
+      // S'assurer que le zoom est câblé (au cas où le DOM a été rerendu)
+      try{ setupAuthorImageZoom(); observeFlagForZoom(); }catch(e){}
+    };
+  })();
+
+  // Au chargement initial (si fiche déjà ouverte)
+  document.addEventListener("DOMContentLoaded", function(){
+    if(window.__modernInit) return; window.__modernInit = true;
+    setupAuthorImageZoom();
+    observeFlagForZoom();
+    const h = location.hash || "#/";
+    if(h.startsWith("#/date=")){
+      // forcer un post-traitement si déjà sur une fiche
+      setTimeout(function(){
+        try{
+          const el = document.getElementById("instruments");
+          if(el){
+            const raw = el.textContent || el.innerText || "";
+            el.innerHTML = wikiLinkifyInstruments(raw);
+          }
+        }catch(e){}
+      }, 80);
+    }
+  });
+})();
+</script>
+
+
+<!-- === MODERN FUN THEME JS (transitions & view handling) === -->
+<script>
+(function(){
+  function show(el){
+    if(!el) return;
+    requestAnimationFrame(()=> el.classList.add("show"));
+  }
+  document.addEventListener("DOMContentLoaded", function(){
+    if(window.__modernInit) return; window.__modernInit = true;
+    // Defer to hash-based routing for first paint to avoid needing manual reloads
+    try{ window.parseHash && window.parseHash(); }catch(e){}
+    const grid = document.getElementById("grid");
+    if(grid){
+      if(window.__gridObs){ try{ window.__gridObs.disconnect(); }catch(e){} }
+      const obs = new MutationObserver(()=>{
+        const cells = grid.querySelectorAll(".day");
+        cells.forEach((c,i)=>{
+          c.style.opacity = "0";
+          c.style.transform = "translateY(6px)";
+          c.style.transition = "opacity .35s ease, transform .35s ease";
+          setTimeout(()=>{ c.style.opacity = "1"; c.style.transform = "translateY(0)"; }, 20 + i*15);
+        });
+      });
+      obs.observe(grid, { childList:true });
+      window.__gridObs = obs;
+    }
+  });
+  const _parseHash = window.parseHash;
+  window.parseHash = function(){
+    const h = location.hash || "#/";
+    const cal = document.getElementById("viewCalendar");
+    const det = document.getElementById("viewDetail");
+    if(h.startsWith("#/date=")){
+      if(cal){ cal.classList.remove("show"); cal.classList.add("hidden"); }
+      if(det){ det.classList.remove("hidden"); show(det); }
+    }else{
+      if(det){ det.classList.remove("show"); det.classList.add("hidden"); }
+      if(cal){ cal.classList.remove("hidden"); show(cal); }
+    }
+    if(typeof _parseHash === "function"){ try{ _parseHash(); }catch(e){} }
+  };
+  document.addEventListener("DOMContentLoaded", function(){
+    if(window.__modernInit) return; window.__modernInit = true;
+    const h1 = document.querySelector("h1.fun-title");
+    if(!h1) return;
+    const deco = document.createElement("div");
+    deco.style.height = "3px"; deco.style.marginTop = "6px";
+    deco.style.borderRadius = "9999px";
+    deco.style.background = "linear-gradient(90deg, var(--acc-1), var(--acc-2), var(--acc-3))";
+    deco.style.boxShadow = "0 8px 18px rgba(165, 119, 246, .35)";
+    deco.style.transform = "scaleX(0)"; deco.style.transformOrigin = "0 50%";
+    deco.style.transition = "transform .9s .4s cubic-bezier(.22,1,.36,1)";
+    h1.parentElement.appendChild(deco);
+    requestAnimationFrame(()=> deco.style.transform = "scaleX(1)");
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  // Final safety sync so user never needs to reload manually
+  try{ window.parseHash && window.parseHash(); }catch(e){}
+})();
+</script>
+
+
+<script>
+// Ensure visible view gets the 'show' class at all times (no manual reload required)
+(function(){
+  function syncShow(){
+    try{
+      var cal = document.getElementById('viewCalendar');
+      var det = document.getElementById('viewDetail');
+      if(!cal || !det) return;
+      if(det.classList.contains('hidden')){
+        det.classList.remove('show');
+        cal.classList.add('show');
+      }else{
+        cal.classList.remove('show');
+        det.classList.add('show');
+      }
+    }catch(e){}
+  }
+  // run once after initial parseHash, and on every hash change
+  setTimeout(function(){ try{ window.parseHash && window.parseHash(); }catch(e){} syncShow(); }, 0);
+  window.addEventListener('hashchange', function(){ syncShow(); }, true);
+})();
+</script>
+
+
+<!-- === PHOTO LOOKUP (aligné sur fiches_artistes_eleve_A4.html) === -->
+<script>
+(function(){
+  async function fetchWikiSummary(lang, title){
+    const url = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent((title||'').replaceAll(' ','_'))}`;
+    const r = await fetch(url);
+    if(!r.ok) return null;
+    const j = await r.json();
+    return j.originalimage?.source || j.thumbnail?.source || null;
+  }
+  async function fetchWikiSearch(lang, query){
+    const api = `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query||'')}&format=json&origin=*`;
+    const r = await fetch(api);
+    if(!r.ok) return null;
+    const j = await r.json();
+    return j?.query?.search?.[0]?.title || null;
+  }
+  async function findArtistImageFichesStyle(data, langDefault){
+    // data: {Auteur, Titre, Lang, Photo}
+    // 1) URL fournie
+    if(data?.Photo && /^https?:\/\//i.test(data.Photo.trim())) return data.Photo.trim();
+    const langs = [];
+    const base = (data?.Lang || langDefault || 'fr').trim().toLowerCase();
+    if(base) langs.push(base);
+    if(!langs.includes('fr')) langs.push('fr');
+    if(!langs.includes('en')) langs.push('en');
+    if(!langs.includes('es')) langs.push('es');
+    if(!langs.includes('de')) langs.push('de');
+    if(!langs.includes('it')) langs.push('it');
+
+    const queries = [];
+    if(data?.Auteur) queries.push(data.Auteur);
+    if(data?.Titre) queries.push(data.Titre);
+    if(data?.Auteur && data?.Titre) queries.push(`${data.Titre} ${data.Auteur}`);
+
+    for(const L of langs){
+      // essais directs
+      for(const q of queries){
+        const img = await fetchWikiSummary(L, q);
+        if(img) return img;
+      }
+      // fallback via recherche
+      for(const q of queries){
+        const t = await fetchWikiSearch(L, q);
+        if(t){
+          const img = await fetchWikiSummary(L, t);
+          if(img) return img;
+        }
+      }
+    }
+    return '';
+  }
+
+  function setPhotoStatus(msg){
+    const el = document.getElementById('authorImgStatus');
+    if(el) el.textContent = msg || '';
+  }
+  function setPhotoCredit(msg){
+    const el = document.getElementById('authorImgCredit');
+    if(el) el.textContent = msg || '';
+  }
+  function setPhotoURL(url, alt){
+    const img = document.getElementById('authorImg');
+    if(!img) return;
+    if(url){
+      img.style.display = '';
+      img.alt = alt || 'Artiste';
+      img.onload = ()=>{ setPhotoStatus(''); setPhotoCredit('Source : Wikipedia'); };
+      img.onerror = ()=>{ setPhotoStatus('Photo indisponible'); setPhotoCredit(''); img.removeAttribute('src'); img.style.display='none'; };
+      img.src = url;
+    }else{
+      img.removeAttribute('src'); img.style.display='none';
+    }
+  }
+
+  // Essaie d'extraire les champs de la fiche courante
+  function readDetailDataFallback(){
+    const getText = (sel)=>{
+      const el = document.querySelector(sel);
+      return el ? (el.value ?? el.textContent ?? '').toString().trim() : '';
+    };
+    return {
+      Auteur: getText('#detailAuthor, .detail-author, [data-detail=author]'),
+      Titre:  getText('#detailTitle,  .detail-title,  [data-detail=title]'),
+      Lang:   getText('#detailLang,   .detail-lang,   [data-detail=lang]'),
+      Photo:  getText('#detailPhoto,  .detail-photo,  [data-detail=photo]')
+    };
+  }
+
+  // Remplace l'ancienne API en restant compatible
+  window.fetchAuthorImage = async function(author, title, lang, photoUrl){
+    try{
+      setPhotoStatus("Recherche d’une image sur Wikipédia…");
+      setPhotoCredit('');
+      setPhotoURL('', '');
+
+      // Construire l'objet data dans l'esprit des fiches
+      const data = {
+        Auteur: (author||'').toString().trim(),
+        Titre: (title||'').toString().trim(),
+        Lang: (lang||'').toString().trim(),
+        Photo: (photoUrl||'').toString().trim()
+      };
+      // Si rien n'est passé, tente de lire depuis la fiche
+      if(!data.Auteur && !data.Titre){
+        const fallback = readDetailDataFallback();
+        data.Auteur = fallback.Auteur || data.Auteur;
+        data.Titre  = fallback.Titre  || data.Titre;
+        data.Lang   = fallback.Lang   || data.Lang;
+        data.Photo  = fallback.Photo  || data.Photo;
+      }
+
+      // Timeout pour ne jamais rester bloqué
+      let timedOut = false;
+      const tid = setTimeout(()=>{
+        timedOut = true;
+        setPhotoStatus("Aucune photo trouvée");
+        setPhotoCredit('');
+        setPhotoURL('', '');
+      }, 8000);
+
+      const url = await findArtistImageFichesStyle(data, data.Lang||'fr');
+      if(timedOut) return '';
+
+      clearTimeout(tid);
+      if(url){
+        setPhotoURL(url, data.Auteur || data.Titre || 'Artiste');
+        return url;
+      }else{
+        setPhotoStatus("Aucune photo trouvée");
+        setPhotoCredit('');
+        setPhotoURL('', '');
+        return '';
+      }
+    }catch(e){
+      setPhotoStatus("Photo indisponible");
+      setPhotoCredit('');
+      setPhotoURL('', '');
+      console.warn('fetchAuthorImage error:', e);
+      return '';
+    }
+  };
+})();
+</script>
+
+
+<!-- === FORCE START ON CURRENT MONTH === -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = today.getMonth(); // 0..11
+    // If no specific date is requested in hash, force month view on current month
+    if (!location.hash || !/\bdate=/.test(location.hash)) {
+      if (typeof curY !== 'undefined') curY = y;
+      if (typeof curM !== 'undefined') curM = m;
+      if (typeof renderCalendar === 'function') renderCalendar();
+    }
+  } catch(e){
+    console.warn('Init month view failed:', e);
+  }
+});
+</script>
+
+
+<!-- === CALENDAR ARTIST PHOTOS === -->
+<style>
+  #grid .day{ position:relative; overflow:hidden; isolation:isolate; }
+  #grid .day.has-artist-photo{ padding:0!important; background:#0f172a!important; border-color:rgba(255,255,255,.18)!important; }
+  #grid .calendar-artist-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.86; transform:scale(1.02); z-index:0; }
+  #grid .calendar-photo-shade{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(15,23,42,.18), rgba(15,23,42,.76)); z-index:1; }
+  #grid .has-artist-photo > div:not(.calendar-photo-shade){ position:relative; z-index:2; color:#fff!important; text-shadow:0 2px 8px rgba(0,0,0,.55); padding-left:.5rem; padding-right:.5rem; }
+  #grid .has-artist-photo > div:first-of-type{ padding-top:.5rem; }
+  #grid .has-artist-photo > div:last-child{ padding-bottom:.5rem; }
+  #grid .calendar-photo-placeholder{ position:absolute; inset:0; display:grid; place-items:center; background:linear-gradient(135deg,#ecfeff,#f8fafc); color:#0f766e; font-weight:900; font-size:clamp(1.4rem,3vw,2.4rem); z-index:0; }
+</style>
+<script>
+(function(){
+  const CACHE_PREFIX = "CALENDAR_ARTIST_IMG_V1_";
+  const photoJobs = new Map();
+  function normalizeKey(value){ return String(value || "").trim().toLowerCase(); }
+  function cacheGet(key){ try{ const raw = localStorage.getItem(CACHE_PREFIX + key); return raw ? JSON.parse(raw) : null; }catch(e){ return null; } }
+  function cacheSet(key, value){ try{ localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(value)); }catch(e){} }
+  function dataByDate(){
+    const arr = (typeof DATA !== "undefined" && Array.isArray(DATA) && DATA.length)
+      ? DATA
+      : (window.DATA || window.MUSIC_DATA || []);
+    const map = new Map();
+    for(const item of arr){ if(item && item.date){ map.set(String(item.date).slice(0,10), item); } }
+    return map;
+  }
+  function pad2(n){ return String(n).padStart(2, "0"); }
+  function dateFromCell(cell){
+    if(cell.dataset.date) return cell.dataset.date;
+    const dayText = (cell.querySelector("div")?.textContent || "").trim();
+    const day = parseInt(dayText, 10);
+    if(!day) return "";
+    const y = (typeof curY !== "undefined") ? curY : new Date().getFullYear();
+    const m = (typeof curM !== "undefined") ? curM : new Date().getMonth();
+    return `${y}-${pad2(m + 1)}-${pad2(day)}`;
+  }
+  function parisTodayYmd(){
+    try{ return new Date().toLocaleString("sv-SE", {timeZone:"Europe/Paris", hour12:false}).slice(0,10); }
+    catch(e){ return new Date().toISOString().slice(0,10); }
+  }
+  function isUnlocked(dateStr){ return !dateStr || dateStr <= parisTodayYmd(); }
+  function initials(name){
+    const parts = String(name || "").replace(/\(.+?\)/g, "").trim().split(/\s+/).filter(Boolean);
+    if(!parts.length) return "♪";
+    return parts.slice(0,2).map(p => p[0]).join("").toUpperCase();
+  }
+  async function fetchSummaryImage(lang, title){
+    if(!title) return "";
+    const url = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(String(title).replaceAll(" ","_"))}`;
+    const res = await fetch(url);
+    if(!res.ok) return "";
+    const json = await res.json();
+    return json?.originalimage?.source || json?.thumbnail?.source || "";
+  }
+  async function fetchSearchTitle(lang, query){
+    if(!query) return "";
+    const url = `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
+    const res = await fetch(url);
+    if(!res.ok) return "";
+    const json = await res.json();
+    return json?.query?.search?.[0]?.title || "";
+  }
+  // Résolution rapide et unifiée des photos : le calendrier et la fiche
+  // utilisent exactement la même URL pour un artiste donné.
+  const KNOWN_ARTIST_PHOTOS = {
+    "pomme": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Pomme%20Bourges%20Autoharpe.jpg",
+    "indochine": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Indochine%202009.JPG",
+    "téléphone": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Festival%20des%20Vieilles%20Charrues%202016%20-%20Les%20Insus%20-%20039.jpg",
+    "telephone": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Festival%20des%20Vieilles%20Charrues%202016%20-%20Les%20Insus%20-%20039.jpg",
+    "clou": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Clou%20Cigale%2018-11-2021.jpg",
+    "hervé": "https://commons.wikimedia.org/wiki/Special:Redirect/file/P2N2023Herve_1.jpg",
+    "herve": "https://commons.wikimedia.org/wiki/Special:Redirect/file/P2N2023Herve_1.jpg",
+    "the hu": "https://commons.wikimedia.org/wiki/Special:Redirect/file/2019%20RiP%20The%20Hu%20-%20by%202eight%20-%20ZSC2060.jpg"
+  };
+  const artistPhotoCacheKey = (author) => "UNIFIED_ARTIST_IMG_V2_" + normalizeKey(author);
+  function readUnifiedPhoto(author){
+    const key = normalizeKey(author);
+    if(!key) return "";
+    const known = KNOWN_ARTIST_PHOTOS[key];
+    if(known) return known;
+    try{
+      const a = localStorage.getItem(artistPhotoCacheKey(author));
+      if(a) return JSON.parse(a)?.url || "";
+    }catch(e){}
+    // Réutilise immédiatement la photo déjà trouvée par la fiche.
+    try{
+      const a = localStorage.getItem("AUTHOR_IMG_" + key);
+      if(a) return JSON.parse(a)?.url || "";
+    }catch(e){}
+    return "";
+  }
+  function writeUnifiedPhoto(author, url){
+    if(!author || !url) return;
+    try{ localStorage.setItem(artistPhotoCacheKey(author), JSON.stringify({url})); }catch(e){}
+    try{ localStorage.setItem("AUTHOR_IMG_" + normalizeKey(author), JSON.stringify({url, credit:"Source : Wikipedia/Wikimedia Commons"})); }catch(e){}
+  }
+  async function findArtistPhoto(item){
+    const author = String(item.author || item.auteur || "").trim();
+    const title = String(item.title || item.titre || "").trim();
+    const explicit = String(item.photo || item.image || item.Photo || "").trim();
+    if(/^https?:\/\//i.test(explicit)){ writeUnifiedPhoto(author, explicit); return explicit; }
+    const key = normalizeKey(author || title);
+    if(!key) return "";
+
+    const unified = readUnifiedPhoto(author);
+    if(unified) return unified;
+
+    const cached = cacheGet(key);
+    if(cached && cached.url){ writeUnifiedPhoto(author, cached.url); return cached.url; }
+    if(cached && cached.miss) return "";
+    if(photoJobs.has(key)) return photoJobs.get(key);
+
+    const job = (async()=>{
+      // Une seule recherche ciblée plutôt que plusieurs langues × plusieurs requêtes.
+      // Cela accélère fortement le premier affichage du calendrier.
+      const queries = [
+        author ? `${author} chanteur` : title,
+        author ? `${author} musicien` : title,
+        author ? `${author} groupe musical` : title
+      ].filter(Boolean);
+      try{
+        const searchResults = await Promise.all(queries.map(q => fetchSearchTitle("fr", q).catch(()=>"")));
+        for(const foundTitle of searchResults){
+          if(!foundTitle) continue;
+          const img = await fetchSummaryImage("fr", foundTitle).catch(()=>"");
+          if(img){ cacheSet(key, {url:img}); writeUnifiedPhoto(author, img); return img; }
+        }
+        // Dernier recours : une recherche anglaise, une seule.
+        const foundEn = await fetchSearchTitle("en", `${author} musician`).catch(()=>"");
+        if(foundEn){
+          const img = await fetchSummaryImage("en", foundEn).catch(()=>"");
+          if(img){ cacheSet(key, {url:img}); writeUnifiedPhoto(author, img); return img; }
+        }
+      }catch(e){}
+      cacheSet(key, {miss:true});
+      return "";
+    })();
+    photoJobs.set(key, job);
+    return job.finally(()=> photoJobs.delete(key));
+  }
+  function addPlaceholder(cell, author){
+    if(cell.querySelector(".calendar-photo-placeholder")) return;
+    const ph = document.createElement("div");
+    ph.className = "calendar-photo-placeholder";
+    ph.textContent = initials(author);
+    cell.prepend(ph);
+  }
+  function addPhotoToCell(cell, url, author){
+    if(!url || cell.querySelector(".calendar-artist-photo")) return;
+    cell.classList.add("has-artist-photo");
+    cell.querySelectorAll(".calendar-photo-placeholder").forEach(el => el.remove());
+    const img = document.createElement("img");
+    img.className = "calendar-artist-photo";
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.alt = author ? `Photo de ${author}` : "Photo artiste";
+    img.src = url;
+    img.onerror = function(){ cell.classList.remove("has-artist-photo"); img.remove(); addPlaceholder(cell, author); };
+    const shade = document.createElement("div");
+    shade.className = "calendar-photo-shade";
+    cell.prepend(shade);
+    cell.prepend(img);
+  }
+  function enhanceCalendarPhotos(){
+    const grid = document.getElementById("grid");
+    if(!grid) return;
+    const map = dataByDate();
+    const cells = Array.from(grid.querySelectorAll(".day"));
+    for(const cell of cells){
+      const dateStr = dateFromCell(cell);
+      if(dateStr) cell.dataset.date = dateStr;
+      const item = map.get(dateStr);
+      if(!item) continue;
+      if(cell.dataset.artistPhotoReady === "1") continue;
+      cell.dataset.artistPhotoReady = "1";
+      const author = item.author || item.auteur || "";
+      addPlaceholder(cell, author);
+      findArtistPhoto(item).then(url => { if(url && document.body.contains(cell)) addPhotoToCell(cell, url, author); });
+    }
+  }
+  window.__calendarArtistPhotoRefresh = enhanceCalendarPhotos;
+  const previousRenderCalendar = window.renderCalendar;
+  window.renderCalendar = function(){
+    if(typeof previousRenderCalendar === "function") previousRenderCalendar.apply(this, arguments);
+    enhanceCalendarPhotos();
+  };
+  document.addEventListener("DOMContentLoaded", function(){ enhanceCalendarPhotos(); });
+  window.addEventListener("hashchange", function(){ setTimeout(enhanceCalendarPhotos, 80); }, true);
+})();
+</script>
+
+<!-- === FINAL UI POLISH: calendrier photo-artiste lisible CM1-CM2 === -->
+<style id="calendarArtistPhotoPolish">
+  :root{
+    --kid-bg-1:#f7fbff;
+    --kid-bg-2:#eef7ff;
+    --kid-ink:#162033;
+    --kid-blue:#2563eb;
+    --kid-green:#059669;
+    --kid-pink:#db2777;
+    --kid-yellow:#f59e0b;
+    --kid-card:#ffffff;
+  }
+  html{ background:var(--kid-bg-1); }
+  body{
+    color:var(--kid-ink)!important;
+    background:
+      linear-gradient(135deg, rgba(37,99,235,.08) 0 25%, transparent 25% 50%, rgba(5,150,105,.08) 50% 75%, transparent 75%) 0 0/58px 58px,
+      radial-gradient(circle at 12% 6%, rgba(251,191,36,.22), transparent 30%),
+      radial-gradient(circle at 88% 14%, rgba(14,165,233,.18), transparent 32%),
+      linear-gradient(180deg, var(--kid-bg-1), var(--kid-bg-2))!important;
+  }
+  body::after{ display:none!important; }
+  .max-w-6xl{ max-width:1180px!important; }
+  header{
+    padding:1rem 1.1rem;
+    border:1px solid rgba(37,99,235,.16);
+    border-radius:18px;
+    background:rgba(255,255,255,.82);
+    box-shadow:0 14px 35px rgba(15,23,42,.08);
+    backdrop-filter:blur(10px);
+  }
+  .fun-title{
+    color:#172554!important;
+    background:none!important;
+    filter:none!important;
+    letter-spacing:0!important;
+  }
+  .fun-title::before{
+    content:"♪";
+    display:inline-grid;
+    place-items:center;
+    width:2.25rem;
+    height:2.25rem;
+    margin-right:.55rem;
+    border-radius:12px;
+    color:#fff;
+    background:linear-gradient(135deg, var(--kid-blue), var(--kid-pink));
+    box-shadow:0 8px 20px rgba(37,99,235,.22);
+  }
+  #viewCalendar, #viewDetail{
+    background:rgba(255,255,255,.92)!important;
+    color:var(--kid-ink)!important;
+    border:1px solid rgba(37,99,235,.14)!important;
+    border-radius:18px!important;
+    box-shadow:0 18px 45px rgba(15,23,42,.1)!important;
+  }
+  #viewCalendar > .flex:first-child{
+    align-items:center;
+    padding:.25rem .25rem .85rem;
+    border-bottom:1px solid rgba(148,163,184,.24);
+  }
+  #yearLbl, #countMonth, #monthLbl, #badgeMonth{ color:#172554!important; }
+  #monthLbl{
+    min-width:12rem;
+    text-align:center;
+    font-weight:900;
+    text-transform:capitalize;
+    border-color:rgba(37,99,235,.18)!important;
+    background:#fff!important;
+    box-shadow:0 8px 20px rgba(15,23,42,.06);
+  }
+  #prev, #next, #backBtn{
+    background:#172554!important;
+    border-radius:12px!important;
+    box-shadow:0 9px 20px rgba(23,37,84,.16);
+  }
+  #saveBtn{ background:var(--kid-green)!important; }
+  #cancelBtn{ background:#e2e8f0!important; color:#1e293b!important; }
+  #calendarWeekdays{
+    display:grid;
+    grid-template-columns:repeat(7, minmax(0,1fr));
+    gap:.7rem;
+    margin-top:1rem;
+    color:#1e3a8a;
+    font-weight:900;
+    font-size:.82rem;
+    text-align:center;
+  }
+  #calendarWeekdays span{
+    padding:.45rem .2rem;
+    border-radius:999px;
+    background:rgba(255,255,255,.78);
+    border:1px solid rgba(37,99,235,.14);
+    box-shadow:0 6px 15px rgba(15,23,42,.05);
+  }
+  #grid{
+    margin-top:.55rem!important;
+    gap:.7rem!important;
+    align-items:stretch;
+  }
+  #grid .day{
+    min-height:118px;
+    aspect-ratio:auto!important;
+    border-radius:16px!important;
+    border:1px solid rgba(148,163,184,.28)!important;
+    background:#fff!important;
+    box-shadow:0 8px 22px rgba(15,23,42,.07);
+    color:#334155!important;
+    transform:none;
+  }
+  #grid .day:hover{
+    transform:translateY(-3px);
+    box-shadow:0 16px 32px rgba(15,23,42,.14);
+  }
+  #grid .day:focus-visible{
+    outline:4px solid rgba(37,99,235,.28);
+    outline-offset:2px;
+  }
+  #grid .day.empty-calendar-cell{
+    min-height:88px;
+    background:rgba(255,255,255,.52)!important;
+    box-shadow:none;
+    border-style:dashed!important;
+  }
+  #grid .day.enhanced-music-day{
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    padding:.65rem!important;
+    overflow:hidden;
+    background:#172554!important;
+    border:0!important;
+  }
+  #grid .day.enhanced-music-day::after{
+    content:none!important;
+    background:none!important;
+  }
+  #grid .calendar-artist-photo{
+    opacity:1!important;
+    transform:scale(1.04)!important;
+    filter:saturate(1.08) contrast(1.04);
+  }
+  #grid .calendar-photo-shade{ display:none!important; }
+  #grid .calendar-photo-placeholder{
+    background:linear-gradient(135deg, #dbeafe, #fce7f3)!important;
+    color:#172554!important;
+    opacity:1;
+  }
+  #grid .calendar-day-number{
+    position:absolute;
+    top:.55rem;
+    left:.55rem;
+    z-index:3;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:2.05rem;
+    height:2.05rem;
+    padding:0 .4rem;
+    border-radius:999px;
+    background:rgba(255,255,255,.92);
+    color:#172554!important;
+    font-weight:900;
+    font-size:.9rem;
+    text-shadow:none!important;
+    box-shadow:0 8px 20px rgba(15,23,42,.2);
+  }
+  /* Texte directement posé sur la photo : aucun bandeau ni fond opaque */
+  #grid .calendar-copy{
+    position:relative;
+    z-index:3;
+    width:100%;
+    padding:.35rem .15rem .25rem;
+    border-radius:0;
+    background:transparent!important;
+    border:0!important;
+    backdrop-filter:none!important;
+    box-shadow:none!important;
+  }
+  #grid .calendar-title{
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    color:#fff!important;
+    font-weight:900;
+    font-size:.95rem;
+    line-height:1.08;
+    text-shadow:
+      0 2px 3px rgba(0,0,0,.95),
+      0 0 10px rgba(0,0,0,.72);
+  }
+  #grid .calendar-author{
+    display:block;
+    margin-top:.22rem;
+    color:#fff!important;
+    font-weight:800;
+    font-size:.78rem;
+    line-height:1.15;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    text-shadow:
+      0 2px 3px rgba(0,0,0,.95),
+      0 0 9px rgba(0,0,0,.72);
+  }
+  #grid .calendar-open-badge{
+    position:absolute;
+    top:.62rem;
+    right:.62rem;
+    z-index:3;
+    width:2rem;
+    height:2rem;
+    display:grid;
+    place-items:center;
+    border-radius:999px;
+    background:rgba(255,255,255,.9);
+    color:#1d4ed8;
+    font-weight:900;
+    box-shadow:0 8px 18px rgba(15,23,42,.18);
+  }
+  #list{
+    display:grid;
+    gap:.45rem;
+    max-height:none!important;
+  }
+  #list > div{
+    background:#f8fafc;
+    border:1px solid rgba(148,163,184,.22);
+    border-radius:12px!important;
+    padding:.65rem .75rem!important;
+  }
+  .text-slate-500, .text-slate-600, .muted{ color:#475569!important; }
+  @media (max-width:760px){
+    header{ border-radius:14px; }
+    #viewCalendar{ padding:.85rem!important; }
+    #viewCalendar > .flex:first-child, #viewCalendar .flex.items-center.gap-2.mt-2{
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    #calendarWeekdays{ gap:.42rem; font-size:.72rem; margin-top:.75rem; }
+    #calendarWeekdays span{ padding:.35rem .1rem; }
+    #grid{ gap:.42rem!important; }
+    #grid .day{ min-height:92px; border-radius:12px!important; }
+    #grid .day.empty-calendar-cell{ min-height:58px; }
+    #grid .calendar-day-number{ min-width:1.65rem; height:1.65rem; font-size:.78rem; top:.38rem; left:.38rem; }
+    #grid .calendar-open-badge{ display:none; }
+    #grid .calendar-copy{ padding:.35rem .1rem .2rem; border-radius:0; background:transparent!important; border:0!important; backdrop-filter:none!important; }
+    #grid .calendar-title{ font-size:.76rem; -webkit-line-clamp:2; }
+    #grid .calendar-author{ font-size:.66rem; }
+  }
+  @media (max-width:520px){
+    #calendarWeekdays{ display:none; }
+    #grid{ grid-template-columns:repeat(2, minmax(0,1fr))!important; }
+    #grid .day.empty-calendar-cell{ display:none; }
+    #grid .day{ min-height:128px; }
+  }
+</style>
+<script>
+(function(){
+  function escapeHtml(value){
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function(char){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char];
+    });
+  }
+  function pad2(value){ return String(value).padStart(2, "0"); }
+  function getDataArray(){
+    if(typeof DATA !== "undefined" && Array.isArray(DATA)) return DATA;
+    if(Array.isArray(window.DATA)) return window.DATA;
+    if(Array.isArray(window.MUSIC_DATA)) return window.MUSIC_DATA;
+    try{
+      const saved = JSON.parse(localStorage.getItem("MUSIC_DATA_JSON") || "[]");
+      return Array.isArray(saved) ? saved : [];
+    }catch(e){ return []; }
+  }
+  function makeMap(){
+    const map = new Map();
+    getDataArray().forEach(function(item){
+      if(item && item.date) map.set(String(item.date).slice(0,10), item);
+    });
+    return map;
+  }
+  function monthHasMusic(year, month){
+    return getDataArray().some(function(item){
+      const date = item && item.date ? String(item.date).slice(0,10) : "";
+      return date.slice(0,7) === year + "-" + pad2(month + 1);
+    });
+  }
+  function firstMusicMonth(){
+    const dates = getDataArray()
+      .map(function(item){ return item && item.date ? String(item.date).slice(0,10) : ""; })
+      .filter(Boolean)
+      .sort();
+    if(!dates.length) return null;
+    return { year:Number(dates[0].slice(0,4)), month:Number(dates[0].slice(5,7)) - 1 };
+  }
+  function moveToUsefulMonth(){
+    if(location.hash && /\bdate=/.test(location.hash)) return false;
+    if(typeof curY === "undefined" || typeof curM === "undefined") return false;
+    if(monthHasMusic(curY, curM)) return false;
+    const first = firstMusicMonth();
+    if(!first) return false;
+    curY = first.year;
+    curM = first.month;
+    return true;
+  }
+  function dateForCell(cell){
+    if(cell.dataset.date) return cell.dataset.date;
+    const firstNumber = (cell.textContent || "").match(/\d{1,2}/);
+    if(!firstNumber) return "";
+    const y = (typeof curY !== "undefined") ? curY : new Date().getFullYear();
+    const m = (typeof curM !== "undefined") ? curM : new Date().getMonth();
+    return y + "-" + pad2(m + 1) + "-" + pad2(firstNumber[0]);
+  }
+  function enhanceCalendarLayout(){
+    const grid = document.getElementById("grid");
+    if(!grid) return;
+    const data = makeMap();
+    Array.from(grid.querySelectorAll(".day")).forEach(function(cell){
+      const date = dateForCell(cell);
+      const item = data.get(date);
+      if(!item){
+        cell.classList.add("empty-calendar-cell");
+        return;
+      }
+      cell.dataset.date = date;
+      cell.classList.remove("empty-calendar-cell");
+      cell.classList.add("enhanced-music-day");
+      if(cell.dataset.finalCalendarUi === "1") return;
+      const day = String(Number(date.slice(8,10)));
+      const title = typeof displayTitle==="function" ? displayTitle(item) : (item.title || item.titre || "Morceau");
+      const author = item.author || item.auteur || "Artiste";
+      cell.innerHTML =
+        '<span class="calendar-day-number">' + escapeHtml(day) + '</span>' +
+        '<span class="calendar-open-badge" aria-hidden="true">›</span>' +
+        '<div class="calendar-copy">' +
+          '<span class="calendar-title">' + escapeHtml(title) + '</span>' +
+          '<span class="calendar-author">' + escapeHtml(author) + '</span>' +
+        '</div>';
+      cell.setAttribute("aria-label", day + " : " + title + ", " + author + ". Ouvrir la fiche.");
+      cell.dataset.finalCalendarUi = "1";
+      cell.dataset.artistPhotoReady = "";
+    });
+  }
+  function rerunEnhancers(){
+    enhanceCalendarLayout();
+    if(typeof window.__calendarArtistPhotoRefresh === "function"){
+      window.__calendarArtistPhotoRefresh();
+    }
+  }
+  const previousRenderCalendar = window.renderCalendar;
+  window.renderCalendar = function(){
+    if(typeof previousRenderCalendar === "function") previousRenderCalendar.apply(this, arguments);
+    rerunEnhancers();
+  };
+  document.addEventListener("DOMContentLoaded", function(){
+    if(moveToUsefulMonth() && typeof window.renderCalendar === "function"){
+      window.renderCalendar();
+      return;
+    }
+    rerunEnhancers();
+  });
+  window.addEventListener("hashchange", function(){ setTimeout(rerunEnhancers, 80); }, true);
+})();
+</script>
+
+<!-- FINAL FIX: artist identity + calendar -> detail routing -->
+<script>
+(function(){
+  'use strict';
+
+  const ARTIST_FIXES = {
+    'pomme': {
+      wiki: 'https://fr.wikipedia.org/wiki/Pomme_(chanteuse)',
+      image: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Pomme%20Bourges%20Autoharpe.jpg'
+    },
+    'indochine': {
+      wiki: 'https://fr.wikipedia.org/wiki/Indochine_(groupe)',
+      image: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Indochine%202009.JPG'
+    },
+    'téléphone': {
+      wiki: 'https://fr.wikipedia.org/wiki/Téléphone_(groupe)',
+      image: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Festival%20des%20Vieilles%20Charrues%202016%20-%20Les%20Insus%20-%20039.jpg'
+    },
+    'telephone': {
+      wiki: 'https://fr.wikipedia.org/wiki/Téléphone_(groupe)',
+      image: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Festival%20des%20Vieilles%20Charrues%202016%20-%20Les%20Insus%20-%20039.jpg'
+    },
+    'clou': {
+      wiki: 'https://fr.wikipedia.org/wiki/Clou_(chanteuse)',
+      image: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Clou%20Cigale%2018-11-2021.jpg'
+    },
+    'hervé': {
+      wiki: 'https://fr.wikipedia.org/wiki/Hervé_(chanteur)',
+      image: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/P2N2023Herve_1.jpg'
+    },
+    'herve': {
+      wiki: 'https://fr.wikipedia.org/wiki/Hervé_(chanteur)',
+      image: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/P2N2023Herve_1.jpg'
+    },
+    'the hu': {
+      wiki: 'https://fr.wikipedia.org/wiki/The_Hu',
+      image: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/2019%20RiP%20The%20Hu%20-%20by%202eight%20-%20ZSC2060.jpg'
+    }
+  };
+
+  function norm(s){
+    return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  }
+  function dataArray(){
+    if(Array.isArray(window.DATA) && window.DATA.length) return window.DATA;
+    try { if(typeof DATA !== 'undefined' && Array.isArray(DATA)) return DATA; } catch(e){}
+    if(Array.isArray(window.MUSIC_DATA) && window.MUSIC_DATA.length) return window.MUSIC_DATA;
+    try { const a=JSON.parse(localStorage.getItem('MUSIC_DATA_JSON')||'[]'); if(Array.isArray(a)) return a; } catch(e){}
+    return [];
+  }
+  function itemForDate(date){
+    const d=String(date||'').slice(0,10);
+    return dataArray().find(x=>x && String(x.date||'').slice(0,10)===d) || null;
+  }
+  function keyFor(author){ return norm(author); }
+
+  function fixedArtist(author){ return ARTIST_FIXES[keyFor(author)] || null; }
+
+  async function wikidataImage(author){
+    const q=String(author||'').trim();
+    if(!q) return '';
+    try{
+      const search='https://www.wikidata.org/w/api.php?action=wbsearchentities&search='+encodeURIComponent(q)+'&language=fr&uselang=fr&format=json&origin=*&limit=5';
+      const sr=await fetch(search);
+      if(!sr.ok) return '';
+      const sj=await sr.json();
+      for(const r of (sj.search||[])){
+        const id=r.id;
+        const er=await fetch('https://www.wikidata.org/w/api.php?action=wbgetentities&ids='+encodeURIComponent(id)+'&props=claims|labels|descriptions&languages=fr&format=json&origin=*');
+        if(!er.ok) continue;
+        const ej=await er.json();
+        const ent=ej.entities && ej.entities[id];
+        const claims=ent && ent.claims || {};
+        const p18=claims.P18 && claims.P18[0] && claims.P18[0].mainsnak && claims.P18[0].mainsnak.datavalue && claims.P18[0].mainsnak.datavalue.value;
+        if(!p18) continue;
+        const desc=((ent.descriptions||{}).fr||{}).value||'';
+        const inst=(claims.P31||[]).map(x=>x.mainsnak?.datavalue?.value?.id||'');
+        const occ=(claims.P106||[]).map(x=>x.mainsnak?.datavalue?.value?.id||'');
+        const musical= /musicien|chanteur|chanteuse|groupe|artiste|musical/i.test(desc) || inst.some(x=>['Q215380','Q5741069','Q1053574','Q2088357'].includes(x)) || occ.length>0;
+        if(!musical) continue;
+        return 'https://commons.wikimedia.org/wiki/Special:Redirect/file/'+encodeURIComponent(p18.replace(/ /g,'_'));
+      }
+    }catch(e){}
+    return '';
+  }
+
+  async function artistImage(author){
+    const fixed=fixedArtist(author);
+    if(fixed) return fixed.image;
+    const k=keyFor(author);
+    try{
+      const u=localStorage.getItem('UNIFIED_ARTIST_IMG_V2_'+k);
+      if(u){ const j=JSON.parse(u); if(j?.url) return j.url; }
+    }catch(e){}
+    try{
+      const u=localStorage.getItem('CALENDAR_ARTIST_IMG_V1_'+k);
+      if(u){ const j=JSON.parse(u); if(j?.url) return j.url; }
+    }catch(e){}
+    try{
+      const u=localStorage.getItem('AUTHOR_IMG_'+k);
+      if(u){ const j=JSON.parse(u); if(j?.url) return j.url; }
+    }catch(e){}
+    const url=await wikidataImage(author);
+    if(url){ try{ localStorage.setItem('UNIFIED_ARTIST_IMG_V2_'+k, JSON.stringify({url})); }catch(e){} }
+    return url;
+  }
+
+  function setAuthorWiki(author){
+    const el=document.getElementById('auteur');
+    if(!el) return;
+    const name=String(author||'').trim();
+    if(!name){el.textContent='—'; return;}
+    const fixed=fixedArtist(name);
+    if(fixed){
+      el.innerHTML='<a href="'+fixed.wiki.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener noreferrer" class="underline text-indigo-600 hover:text-indigo-800">'+name+' ↗</a>';
+      return;
+    }
+    // Pour les artistes non ambigus, recherche Wikidata/Wikipedia sans utiliser le mot seul comme URL.
+    el.textContent=name;
+    (async()=>{
+      try{
+        const u='https://fr.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch='+encodeURIComponent(name+' musicien chanteur groupe')+'&gsrnamespace=0&gsrlimit=1&prop=info&inprop=url';
+        const r=await fetch(u); if(!r.ok)return;
+        const j=await r.json(); const pg=Object.values(j?.query?.pages||{})[0];
+        if(pg?.fullurl && document.getElementById('auteur')){
+          document.getElementById('auteur').innerHTML='<a href="'+pg.fullurl.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener noreferrer" class="underline text-indigo-600 hover:text-indigo-800">'+name+' ↗</a>';
+        }
+      }catch(e){}
+    })();
+  }
+
+  async function renderFinalDetail(date){
+    const d=String(date||'').slice(0,10);
+    const item=itemForDate(d) || {};
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v||'—';};
+    set('dateLbl',d);
+    set('titre',typeof displayTitle==="function" ? displayTitle(item) : (item.title||item.titre));
+    setAuthorWiki(item.author||item.auteur);
+    set('origine',item.origin||item['origine (pays auteur)']);
+    // Mise à jour immédiate du drapeau après avoir écrit le pays.
+    try{
+      const originValue = item.origin || item['origine (pays auteur)'] || '';
+      if(typeof window.__refreshFlag === 'function') window.__refreshFlag(originValue);
+    }catch(e){}
+    set('instruments',item.instruments);
+    const yt=item.youtube||item['lien youtube']||'';
+    const ytFrame=document.getElementById('ytFrame');
+    if(ytFrame){
+      let src='';
+      try{const u=new URL(yt); const id=u.hostname.includes('youtu.be')?u.pathname.slice(1):u.searchParams.get('v'); if(id)src='https://www.youtube.com/embed/'+id;}catch(e){}
+      ytFrame.src=src;
+    }
+    const mapFrame=document.getElementById('mapFrame');
+    if(mapFrame) mapFrame.src=item.origin||item['origine (pays auteur)'] ? 'https://www.google.com/maps?q='+encodeURIComponent(item.origin||item['origine (pays auteur)'])+'&output=embed' : '';
+    const photo=document.getElementById('authorImg');
+    if(photo){
+      photo.style.display='block';
+      photo.removeAttribute('src');
+      const url=await artistImage(item.author||item.auteur);
+      if(url){ photo.src=url; photo.alt='Photo de '+(item.author||item.auteur||'artiste'); }
+      else { photo.style.display='none'; }
+    }
+    const status=document.getElementById('authorImgStatus');
+    if(status) status.textContent='';
+    const credit=document.getElementById('authorImgCredit');
+    if(credit) credit.textContent='';
+  }
+
+  function openDetail(date){
+    const d=String(date||'').slice(0,10);
+    if(!itemForDate(d)) return;
+    const cal=document.getElementById('viewCalendar'), det=document.getElementById('viewDetail');
+    if(cal){ cal.classList.add('hidden'); cal.classList.remove('show'); }
+    if(det){
+      det.classList.remove('hidden');
+      det.classList.add('show');
+      det.style.opacity = '1';
+      det.style.transform = 'none';
+      det.style.display = '';
+    }
+    try{ history.replaceState(null,'','#/date='+encodeURIComponent(d)); }catch(e){ location.hash='#/date='+encodeURIComponent(d); }
+    renderFinalDetail(d);
+  }
+
+  // Intercepte le clic AVANT les anciens handlers : c'est la correction de la fiche vierge.
+  document.addEventListener('click',function(ev){
+    const cell=ev.target && ev.target.closest ? ev.target.closest('#grid .day[data-date]') : null;
+    if(cell){
+      const d=cell.dataset.date;
+      if(d && itemForDate(d)){
+        ev.preventDefault(); ev.stopImmediatePropagation();
+        openDetail(d);
+      }
+    }
+  },true);
+
+  // Photos du calendrier : on remplace les résultats ambigus par l'identité musicale exacte.
+  let calendarPhotoTimer = null;
+  let calendarPhotoRun = 0;
+  async function refreshCalendarPhotos(){
+    const run = ++calendarPhotoRun;
+    const grid=document.getElementById('grid'); if(!grid)return;
+    const cells = Array.from(grid.querySelectorAll('.day[data-date]'));
+    const jobs = [];
+    const seen = new Set();
+    for(const cell of cells){
+      const item=itemForDate(cell.dataset.date); if(!item)continue;
+      const author=(item.author||item.auteur||'').trim();
+      if(!author)continue;
+      const key=author.toLowerCase();
+      if(seen.has(key))continue;
+      seen.add(key);
+      jobs.push({author, cells:cells.filter(c=>{ const it=itemForDate(c.dataset.date); return ((it?.author||it?.auteur||'').trim().toLowerCase()===key); })});
+    }
+    // Ne bloque jamais l'affichage du calendrier : les photos sont chargées après le rendu.
+    const concurrency = 6;
+    let next = 0;
+    async function worker(){
+      while(next < jobs.length){
+        const job = jobs[next++];
+        const url = await artistImage(job.author).catch(()=>"");
+        if(run !== calendarPhotoRun || !url) continue;
+        for(const cell of job.cells){
+          if(!document.body.contains(cell)) continue;
+          if(cell.querySelector('.calendar-artist-photo')) continue;
+          cell.classList.add('has-artist-photo');
+          const img=document.createElement('img');
+          img.className='calendar-artist-photo'; img.loading='lazy'; img.decoding='async'; img.alt='Photo de '+job.author; img.src=url;
+          img.onerror=()=>{img.remove(); cell.classList.remove('has-artist-photo');};
+          const shade=cell.querySelector('.calendar-photo-shade');
+          if(shade) cell.insertBefore(img,shade); else cell.prepend(img);
+        }
+      }
+    }
+    await Promise.all(Array.from({length:Math.min(concurrency,jobs.length)},()=>worker()));
+  }
+  const oldRC=window.renderCalendar;
+  window.renderCalendar=function(){
+    if(typeof oldRC==='function') oldRC.apply(this,arguments);
+    if(calendarPhotoTimer) clearTimeout(calendarPhotoTimer);
+    calendarPhotoTimer=setTimeout(()=>{ calendarPhotoTimer=null; refreshCalendarPhotos(); },180);
+  };
+
+  // Retour calendrier : réaffiche le calendrier sans réutiliser l'ancien routeur.
+  document.addEventListener('click',function(ev){
+    if(ev.target && ev.target.closest && ev.target.closest('#backBtn')){
+      ev.preventDefault(); ev.stopImmediatePropagation();
+      const cal=document.getElementById('viewCalendar'), det=document.getElementById('viewDetail');
+      if(det){ det.classList.add('hidden'); det.classList.remove('show'); det.style.opacity=''; det.style.transform=''; }
+      if(cal){ cal.classList.remove('hidden'); cal.classList.add('show'); cal.style.opacity='1'; cal.style.transform='none'; cal.style.display=''; }
+      try{history.replaceState(null,'','#/');}catch(e){location.hash='#/';}
+      if(typeof window.renderCalendar==='function')window.renderCalendar();
+    }
+  },true);
+
+  // Si le fichier est ouvert directement sur une fiche, la rendre immédiatement.
+  document.addEventListener('DOMContentLoaded',function(){
+    const m=(location.hash||'').match(/^#\/date=(.+)$/);
+    if(m) openDetail(decodeURIComponent(m[1]));
+    else setTimeout(refreshCalendarPhotos,150);
+  });
+})();
+</script>
+
+
+<script>
+// === FINAL FLAG GUARD v5 ===
+(function(){
+  const MAP={
+    france:'fr', espagne:'es', italie:'it', allemagne:'de', autriche:'at', 'royaume-uni':'gb', 'royaume uni':'gb', angleterre:'gb', uk:'gb', 'grande-bretagne':'gb', irlande:'ie', pologne:'pl', hongrie:'hu', 'republique tcheque':'cz', tchequie:'cz', slovaquie:'sk', russie:'ru', ukraine:'ua', finlande:'fi', norvege:'no', suede:'se', danemark:'dk', 'pays-bas':'nl', hollande:'nl', belgique:'be', suisse:'ch', portugal:'pt', grece:'gr', turquie:'tr', 'etats-unis':'us', 'etats unis':'us', usa:'us', canada:'ca', mexique:'mx', bresil:'br', argentine:'ar', chili:'cl', perou:'pe', bolivie:'bo', colombie:'co', equateur:'ec', paraguay:'py', uruguay:'uy', chine:'cn', japon:'jp', 'coree du sud':'kr', coree:'kr', inde:'in', indonesie:'id', australie:'au', 'nouvelle-zelande':'nz', islande:'is', roumanie:'ro', bulgarie:'bg', serbie:'rs', croatie:'hr', slovenie:'si', lituanie:'lt', lettonie:'lv', estonie:'ee', luxembourg:'lu', malte:'mt', chypre:'cy', armenie:'am', georgie:'ge', israel:'il', egypte:'eg', maroc:'ma', tunisie:'tn', algerie:'dz', cuba:'cu', 'cap-vert':'cv', 'cap vert':'cv', bosnie:'ba', 'bosnie-herzegovine':'ba', cameroun:'cm', nigeria:'ng', ghana:'gh', senegal:'sn', mali:'ml', guinee:'gn', 'guinee-bissau':'gw', 'cote d ivoire':'ci', 'afrique du sud':'za', namibie:'na', kenya:'ke', tanzanie:'tz', ouganda:'ug', rwanda:'rw', 'republique democratique du congo':'cd', 'rd congo':'cd', congo:'cg', mozambique:'mz', zimbabwe:'zw', zambie:'zm', angola:'ao', ethiopie:'et', madagascar:'mg', maurice:'mu', jamaique:'jm', haiti:'ht', honduras:'hn', nicaragua:'ni', guatemala:'gt', 'costa rica':'cr', panama:'pa', 'republique dominicaine':'do', 'porto rico':'pr', portorico:'pr', iran:'ir', irak:'iq', liban:'lb', syrie:'sy', jordanie:'jo', 'arabie saoudite':'sa', 'emirats arabes unis':'ae', palestine:'ps', mongolie:'mn', vietnam:'vn', thailande:'th', philippines:'ph', malaisie:'my', singapour:'sg', nepal:'np', pakistan:'pk', bangladesh:'bd', 'sri lanka':'lk', afghanistan:'af', kazakhstan:'kz', ouzbekistan:'uz', azerbaidjan:'az', 'papouasie-nouvelle-guinee':'pg', fidji:'fj', hawai:'us'
+  };
+  function clean(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’']/g,' ').replace(/[-_,;()]/g,' ').replace(/\s+/g,' ').trim(); }
+  function codeFor(v){ const s=clean(v); if(!s) return ''; if(/^[a-z]{2}$/.test(s)) return s; if(MAP[s]) return MAP[s]; for(const k in MAP){ const kk=clean(k); if(s===kk || s.includes(kk)) return MAP[k]; } return ''; }
+  function paint(){
+    const el=document.getElementById('flagIcon'), org=document.getElementById('origine'); if(!el||!org) return;
+    const code=codeFor(org.textContent);
+    el.innerHTML='';
+    if(!code) return;
+    const img=document.createElement('img');
+    img.alt='Drapeau '+code.toUpperCase();
+    img.width=60; img.height=40;
+    img.style.cssText='width:60px;height:40px;object-fit:cover;border-radius:4px;display:inline-block;vertical-align:middle;box-shadow:0 1px 4px rgba(0,0,0,.25)';
+    img.onload=function(){ el.replaceChildren(img); };
+    img.onerror=function(){
+      if(img.dataset.fallback==='1'){ el.textContent='🏳️'; return; }
+      img.dataset.fallback='1';
+      img.src='https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/'+code+'.svg';
+    };
+    img.src='https://flagcdn.com/w320/'+code+'.png';
+    el.appendChild(img);
+  }
+  window.__paintFinalFlag=paint;
+  document.addEventListener('DOMContentLoaded',paint);
+  window.addEventListener('hashchange',()=>setTimeout(paint,30));
+  const old=window.__refreshFlag;
+  window.__refreshFlag=function(origin){ if(typeof old==='function') { try{old(origin);}catch(e){} } setTimeout(paint,0); };
+  // Pas de polling permanent : le drapeau est rafraîchi uniquement lors des changements de fiche.
+})();
+</script>
+
+<!-- === ROBUST IMAGE ZOOM v9 === -->
+<style>
+#artistImageZoomOverlay{
+  position:fixed!important; inset:0!important; z-index:2147483647!important;
+  display:none; align-items:center; justify-content:center;
+  padding:24px; box-sizing:border-box;
+  background:rgba(0,0,0,.88);
+  cursor:zoom-out;
+}
+#artistImageZoomOverlay.open{display:flex!important}
+#artistImageZoomOverlay img{
+  display:block!important; max-width:90vw!important; max-height:82vh!important;
+  width:85vw!important; height:auto!important; object-fit:contain!important;
+  border-radius:10px; background:#fff;
+  box-shadow:0 12px 50px rgba(0,0,0,.55);
+  cursor:zoom-out;
+}
+#artistImageZoomOverlay .zoom-close{
+  position:absolute; top:14px; right:18px; width:44px; height:44px;
+  border:0; border-radius:50%; background:rgba(255,255,255,.18);
+  color:#fff; font-size:30px; line-height:44px; text-align:center;
+  cursor:pointer;
+}
+#authorImg, #flagIcon img{cursor:zoom-in!important}
+#artistImageZoomOverlay img.flag-zoom{
+  width:85vw!important; max-width:85vw!important; max-height:72vh!important;
+  height:auto!important; object-fit:contain!important;
+  background:#000!important; border-radius:0!important;
+  box-shadow:0 12px 50px rgba(0,0,0,.75)!important;
+}
+</style>
+<script>
+(function(){
+  function ensureOverlay(){
+    let o=document.getElementById('artistImageZoomOverlay');
+    if(o) return o;
+    o=document.createElement('div');
+    o.id='artistImageZoomOverlay';
+    o.setAttribute('role','dialog');
+    o.setAttribute('aria-modal','true');
+    o.setAttribute('aria-label','Image agrandie');
+    o.innerHTML='<button type="button" class="zoom-close" aria-label="Fermer">×</button><img alt="Image agrandie">';
+    document.body.appendChild(o);
+    const close=()=>{o.classList.remove('open'); o.querySelector('img').removeAttribute('src');};
+    o.querySelector('.zoom-close').addEventListener('click',e=>{e.stopPropagation();close();});
+    o.addEventListener('click',e=>{if(e.target===o || e.target===o.querySelector('img')) close();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape') close();});
+    return o;
+  }
+  function openZoom(img){
+    if(!img) return;
+    const src=img.currentSrc || img.src || img.getAttribute('src');
+    if(!src) return;
+    const o=ensureOverlay(), big=o.querySelector('img');
+    big.src=src;
+    big.classList.toggle('flag-zoom', !!(img.closest && img.closest('#flagIcon')));
+    big.alt=img.alt || 'Image agrandie';
+    o.classList.add('open');
+  }
+  document.addEventListener('click',function(e){
+    const target=e.target && e.target.nodeType===1 ? e.target : e.target?.parentElement;
+    if(!target) return;
+    const img=target.closest && target.closest('#authorImg, #flagIcon img');
+    if(!img) return;
+    e.preventDefault();
+    e.stopPropagation();
+    openZoom(img);
+  },true);
+})();
+</script>
+
+
+
+
+\n\n
+
+<!-- === VERROUILLAGE FINAL DES DATES FUTURES — passé accessible === -->
+<style id="futureLockFinal">
+  #grid .day.future-locked{
+    cursor:not-allowed!important;
+    opacity:.72!important;
+  }
+  #grid .day.future-locked .calendar-title,
+  #grid .day.future-locked .calendar-author{
+    color:#64748b!important;
+  }
+  #grid .day.future-locked .calendar-open-badge{display:none!important}
+  #grid .day.future-locked img.calendar-artist-photo,
+  #grid .day.future-locked .calendar-photo-shade,
+  #grid .day.future-locked .calendar-photo-placeholder{
+    display:none!important;
+  }
+</style>
+<script>
+(function(){
+  'use strict';
+
+  function parisToday(){
+    try{
+      return new Date().toLocaleString('sv-SE',{timeZone:'Europe/Paris',hour12:false}).slice(0,10);
+    }catch(e){
+      const d=new Date();
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    }
+  }
+
+  function isFuture(d){
+    return String(d||'').slice(0,10) > parisToday();
+  }
+
+  function dataArray(){
+    if(Array.isArray(window.DATA) && window.DATA.length) return window.DATA;
+    if(Array.isArray(window.MUSIC_DATA) && window.MUSIC_DATA.length) return window.MUSIC_DATA;
+    try{
+      const a=JSON.parse(localStorage.getItem('MUSIC_DATA_JSON')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){ return []; }
+  }
+
+  function itemForDate(d){
+    const key=String(d||'').slice(0,10);
+    return dataArray().find(x=>String(x?.date||'').slice(0,10)===key) || null;
+  }
+
+  function lockFutureCell(cell){
+    if(!cell) return;
+    const d=String(cell.dataset.date||'').slice(0,10);
+    if(!d || !itemForDate(d)) return;
+
+    if(isFuture(d)){
+      cell.classList.add('future-locked');
+      cell.setAttribute('aria-disabled','true');
+      cell.setAttribute('title','Ce morceau sera disponible le '+d+'.');
+      cell.style.cursor='not-allowed';
+
+      // On masque les informations du morceau, mais on conserve le numéro du jour.
+      const num=cell.querySelector('.calendar-day-number');
+      const copy=cell.querySelector('.calendar-copy');
+      if(copy){
+        copy.innerHTML='<span class="calendar-title">🔒 À découvrir</span>'+
+                       '<span class="calendar-author">Disponible le '+d+'</span>';
+      }else{
+        const html='<span class="calendar-day-number">'+(Number(d.slice(8,10)))+'</span>'+
+          '<div class="calendar-copy"><span class="calendar-title">🔒 À découvrir</span>'+
+          '<span class="calendar-author">Disponible le '+d+'</span></div>';
+        cell.innerHTML=html;
+      }
+      cell.querySelectorAll('img.calendar-artist-photo,.calendar-photo-shade,.calendar-photo-placeholder')
+          .forEach(el=>el.remove());
+      cell.classList.remove('has-artist-photo');
+    }else{
+      // IMPORTANT : les dates passées et la date du jour restent totalement accessibles.
+      cell.classList.remove('future-locked');
+      cell.removeAttribute('aria-disabled');
+      cell.removeAttribute('title');
+      cell.style.cursor='';
+      cell.style.opacity='';
+    }
+  }
+
+  function enforce(){
+    document.querySelectorAll('#grid .day[data-date]').forEach(lockFutureCell);
+  }
+
+  // Le clic est intercepté au niveau WINDOW, donc avant les anciens gestionnaires
+  // enregistrés sur document. Les dates passées passent normalement.
+  window.addEventListener('click',function(ev){
+    const cell=ev.target && ev.target.closest ? ev.target.closest('#grid .day[data-date]') : null;
+    if(!cell) return;
+    const d=String(cell.dataset.date||'').slice(0,10);
+    if(isFuture(d)){
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
+    }
+  },true);
+
+  // Empêche aussi l'accès direct par #/date=YYYY-MM-DD pour une date future.
+  function guardHash(){
+    const m=(location.hash||'').match(/^#\/date=(.+)$/);
+    if(!m) return;
+    let d='';
+    try{ d=decodeURIComponent(m[1]).slice(0,10); }catch(e){}
+    if(isFuture(d)){
+      history.replaceState(null,'','#/');
+      const cal=document.getElementById('viewCalendar');
+      const det=document.getElementById('viewDetail');
+      if(det){det.classList.add('hidden');det.classList.remove('show');det.style.display='none';}
+      if(cal){cal.classList.remove('hidden');cal.classList.add('show');cal.style.display='';}
+      if(typeof window.renderCalendar==='function') setTimeout(enforce,0);
+    }
+  }
+
+  window.addEventListener('hashchange',guardHash,true);
+
+  // Si un ancien routeur a ouvert une fiche future avant ce patch, on la referme.
+  function guardCurrentView(){
+    guardHash();
+    enforce();
+  }
+
+  // Après chaque rendu, on verrouille uniquement les dates futures.
+  const previousRenderCalendar=window.renderCalendar;
+  window.renderCalendar=function(){
+    if(typeof previousRenderCalendar==='function'){
+      previousRenderCalendar.apply(this,arguments);
+    }
+    setTimeout(enforce,0);
+    setTimeout(enforce,80);
+  };
+
+  // Quand les données Excel viennent d'être chargées, si le mois courant
+  // ne contient aucun morceau, afficher le mois musical le plus récent,
+  // pas le premier mois de l'année. Les mois passés restent navigables.
+  function moveToLatestUsefulMonth(){
+    const arr=dataArray();
+    if(!arr.length) return false;
+    const count=document.getElementById('countMonth');
+    const prev=document.getElementById('prev');
+    if(!count || !prev) return false;
+    // renderCalendar écrit le nombre de morceaux du mois dans #countMonth.
+    // Si le mois courant est vide, on remonte jusqu'au dernier mois contenant
+    // réellement un morceau passé ou présent.
+    let n=0;
+    while(String(count.textContent||'').trim()==='0' && n<120){
+      prev.click();
+      n++;
+    }
+    return n>0;
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(function(){
+      // DATA peut être chargé automatiquement un peu après DOMContentLoaded.
+      if(moveToLatestUsefulMonth() && typeof window.renderCalendar==='function'){
+        window.renderCalendar();
+      }
+      guardCurrentView();
+      setTimeout(guardCurrentView,250);
+    },350);
+  });
+
+  // Après le chargement automatique de musique.xlsx, renderCalendar est appelé :
+  // notre wrapper ci-dessus réapplique alors le verrouillage.
+})();
+</script>
+<!-- === /VERROUILLAGE FINAL DES DATES FUTURES === -->
+
+</body>
+</html>
+
+<!-- === UNIFIED ARTIST PHOTO: fiche = calendrier === -->
+<script>
+(function(){
+  function norm(v){return String(v||'').trim().toLowerCase();}
+  const known={
+    "pomme":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Pomme%20Bourges%20Autoharpe.jpg",
+    "indochine":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Indochine%202009.JPG",
+    "téléphone":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Festival%20des%20Vieilles%20Charrues%202016%20-%20Les%20Insus%20-%20039.jpg",
+    "telephone":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Festival%20des%20Vieilles%20Charrues%202016%20-%20Les%20Insus%20-%20039.jpg",
+    "clou":"https://commons.wikimedia.org/wiki/Special:Redirect/file/Clou%20Cigale%2018-11-2021.jpg",
+    "hervé":"https://commons.wikimedia.org/wiki/Special:Redirect/file/P2N2023Herve_1.jpg",
+    "herve":"https://commons.wikimedia.org/wiki/Special:Redirect/file/P2N2023Herve_1.jpg"
+  };
+  function get(author){
+    const k=norm(author); if(!k)return '';
+    if(known[k])return known[k];
+    try{const x=localStorage.getItem('UNIFIED_ARTIST_IMG_V2_'+k);if(x)return JSON.parse(x)?.url||'';}catch(e){}
+    try{const x=localStorage.getItem('AUTHOR_IMG_'+k);if(x)return JSON.parse(x)?.url||'';}catch(e){}
+    try{const x=localStorage.getItem('CALENDAR_ARTIST_IMG_V1_'+k);if(x)return JSON.parse(x)?.url||'';}catch(e){}
+    return '';
+  }
+  function sync(){
+    const img=document.getElementById('authorImg');
+    const author=(document.getElementById('auteur')?.textContent||'').trim();
+    const url=get(author);
+    if(img && url){ img.src=url; img.style.display=''; img.alt='Photo de '+author; }
+  }
+  window.__syncUnifiedArtistPhoto=sync;
+  const old=window.renderDetail;
+  if(typeof old==='function'){
+    window.renderDetail=function(){const r=old.apply(this,arguments); setTimeout(sync,0); return r;};
+  }
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(sync,50));
+})();
+</script>
+
+<!-- === FINAL: fiche utilise EXACTEMENT la photo du calendrier === -->
+<style>
+  #authorImg{cursor:zoom-in;}
+</style>
+<script>
+(function(){
+  function norm(v){
+    return String(v||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  }
+  function findCalendarPhoto(author){
+    const target=norm(author);
+    if(!target) return '';
+    const imgs=Array.from(document.querySelectorAll('#grid img.calendar-artist-photo'));
+    // 1) correspondance exacte sur l'alt fourni par le calendrier
+    for(const img of imgs){
+      const alt=norm((img.getAttribute('alt')||'').replace(/^photo de\s*/i,''));
+      if(alt===target && img.currentSrc) return img.currentSrc;
+    }
+    // 2) correspondance sur la cellule contenant le nom de l'artiste
+    for(const img of imgs){
+      const cell=img.closest('.day');
+      if(!cell) continue;
+      const text=norm(cell.textContent);
+      if(text.includes(target) && img.currentSrc) return img.currentSrc;
+    }
+    return '';
+  }
+  function getFallback(author){
+    const k=norm(author);
+    if(!k) return '';
+    try{const x=localStorage.getItem('UNIFIED_ARTIST_IMG_V2_'+k);if(x)return JSON.parse(x)?.url||'';}catch(e){}
+    try{const x=localStorage.getItem('AUTHOR_IMG_'+k);if(x)return JSON.parse(x)?.url||'';}catch(e){}
+    try{const x=localStorage.getItem('CALENDAR_ARTIST_IMG_V1_'+k);if(x)return JSON.parse(x)?.url||'';}catch(e){}
+    return '';
+  }
+  function syncExact(){
+    const img=document.getElementById('authorImg');
+    if(!img) return;
+    const author=(document.getElementById('auteur')?.textContent||'').trim();
+    if(!author || author==='—') return;
+    const exact=findCalendarPhoto(author);
+    const url=exact || getFallback(author);
+    if(url){
+      img.src=url;
+      img.style.display='';
+      img.alt='Photo de '+author;
+      img.dataset.source='calendar-exact';
+    }
+  }
+  window.__syncExactCalendarArtistPhoto=syncExact;
+  const oldRender=window.renderDetail;
+  if(typeof oldRender==='function'){
+    window.renderDetail=function(){
+      const r=oldRender.apply(this,arguments);
+      // Le calendrier est la source de vérité pour la photo.
+      setTimeout(syncExact,0);
+      setTimeout(syncExact,120);
+      setTimeout(syncExact,500);
+      return r;
+    };
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    syncExact();
+    setTimeout(syncExact,200);
+    setTimeout(syncExact,700);
+  });
+  // Si la photo du calendrier arrive après l'ouverture de la fiche, on resynchronise.
+  const grid=document.getElementById('grid');
+  if(grid){
+    const obs=new MutationObserver(()=>syncExact());
+    obs.observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
+  }
+})();
+</script>
+
+
+<style id="classroomUi">
+:root{
+  --ink:#16324f;
+  --muted:#4b6480;
+  --paper:#fffdf8;
+  --sky:#e8f4ff;
+  --sun:#ffb703;
+  --coral:#fb7185;
+  --teal:#0d9488;
+  --navy:#1d4e89;
+  --card:#ffffff;
+  --ring:rgba(255,183,3,.85);
+}
+html,body{min-height:100%;}
+body{
+  font-family:"Nunito",system-ui,sans-serif !important;
+  color:var(--ink) !important;
+  background:
+    radial-gradient(900px 420px at 8% -10%, #ffe8a3 0%, transparent 55%),
+    radial-gradient(700px 380px at 100% 0%, #cdefff 0%, transparent 50%),
+    linear-gradient(180deg, #f7fbff 0%, #eef6ff 100%) !important;
+}
+body::after{display:none !important;}
+.app-shell{max-width:1240px;margin:0 auto;padding:1rem 1.1rem 2.4rem;}
+.app-header{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;
+  padding:1rem 1.15rem;border-radius:24px;
+  background:rgba(255,255,255,.86);
+  border:1px solid rgba(29,78,137,.12);
+  box-shadow:0 18px 40px rgba(22,50,79,.08);
+}
+.brand{display:flex;align-items:center;gap:.85rem;}
+.brand-mark{
+  width:3.2rem;height:3.2rem;border-radius:18px;display:grid;place-items:center;
+  color:#fff;font-size:1.7rem;font-weight:900;
+  background:linear-gradient(135deg, var(--navy), #38bdf8);
+  box-shadow:0 10px 24px rgba(29,78,137,.28);
+}
+.eyebrow{margin:0;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-weight:900;}
+.fun-title{
+  margin:.1rem 0 0;color:var(--ink)!important;background:none!important;filter:none!important;
+  animation:none!important;opacity:1!important;transform:none!important;font-size:clamp(1.7rem,2vw + 1rem,2.5rem)!important;
+}
+.fun-title::before{content:none!important;}
+.header-actions{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;}
+.today-btn{
+  border:0;cursor:pointer;color:#16324f;font:inherit;font-weight:900;font-size:1.05rem;
+  padding:.85rem 1.15rem;border-radius:999px;background:var(--sun);
+  box-shadow:0 10px 0 #e09a00;
+}
+.today-btn:hover{transform:translateY(1px);box-shadow:0 9px 0 #e09a00;}
+.today-btn:active{transform:translateY(8px);box-shadow:0 2px 0 #e09a00;}
+.pdf-link{
+  display:none;align-items:center;padding:.7rem 1rem;border-radius:999px;font-weight:800;
+  background:#fff;border:1px solid rgba(29,78,137,.16);color:var(--navy);text-decoration:none;
+}
+.teacher-panel,#navExport,#file,label[for="file"]{display:none !important;}
+#viewCalendar,#viewDetail{
+  background:var(--card)!important;color:var(--ink)!important;
+  border:1px solid rgba(29,78,137,.12)!important;border-radius:26px!important;
+  box-shadow:0 22px 50px rgba(22,50,79,.1)!important;padding:1.15rem 1.2rem 1.35rem!important;
+  opacity:1 !important; transform:none !important;
+}
+.calendar-toolbar{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:space-between;margin-bottom:.35rem;}
+.year-chip,.count-chip{
+  background:#f3f8ff;border:1px solid rgba(29,78,137,.1);border-radius:16px;padding:.55rem .85rem;font-weight:800;color:var(--navy);
+}
+.month-nav{display:flex;align-items:center;justify-content:center;gap:.7rem;margin:1rem 0 .4rem;}
+.nav-arrow{
+  width:3.1rem;height:3.1rem;border:0;border-radius:16px;cursor:pointer;color:#fff;font-size:1.2rem;
+  background:var(--navy)!important;box-shadow:0 8px 0 #12365f;
+}
+.month-label,#monthLbl{
+  min-width:14rem;text-align:center;font-weight:900!important;font-size:1.45rem!important;
+  text-transform:capitalize;background:#fff!important;border-radius:18px!important;
+  padding:.65rem 1rem!important;border:1px solid rgba(29,78,137,.12)!important;color:var(--ink)!important;
+}
+#calendarWeekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.65rem;margin-top:.85rem;}
+#calendarWeekdays span{
+  text-align:center;font-weight:900;color:var(--navy);background:#eef6ff;border-radius:999px;padding:.4rem .2rem;font-size:.85rem;
+}
+#grid{gap:.65rem!important;}
+#grid .day{
+  min-height:126px;border-radius:18px!important;background:#fff!important;
+  border:1px solid rgba(148,163,184,.28)!important;box-shadow:0 10px 20px rgba(22,50,79,.07);
+}
+#grid .day.is-today{
+  outline:4px solid var(--sun);outline-offset:2px;
+}
+#grid .day.is-today .calendar-day-number,
+#grid .day.is-today > div:first-child{
+  background:var(--sun)!important;color:#16324f!important;
+}
+.month-list{margin-top:1.2rem;padding-top:1rem;border-top:1px dashed rgba(29,78,137,.18);}
+.detail-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:.3rem;}
+.back-btn,#backBtn{
+  border:0;cursor:pointer;background:var(--navy)!important;color:#fff!important;
+  font-weight:800;border-radius:14px!important;padding:.7rem 1rem!important;
+}
+.detail-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.7fr);gap:1.1rem;align-items:start;}
+.info-hero{margin-bottom:.85rem;}
+.track-title,#titre{font-size:clamp(1.6rem,1.4vw + 1.2rem,2.4rem);font-weight:900;line-height:1.15;color:var(--ink);}
+.track-artist,#auteur{margin-top:.25rem;font-size:1.2rem;font-weight:800;color:var(--teal);}
+.player-frame{
+  aspect-ratio:16/9;border-radius:22px;overflow:hidden;background:#111;
+  box-shadow:0 18px 40px rgba(15,23,42,.28);border:4px solid #fff;
+}
+.player-frame iframe,.map-wrap iframe{width:100%;height:100%;border:0;}
+.meta-col{display:grid;gap:.75rem;}
+.artist-card,.meta-card{
+  background:linear-gradient(180deg,#fff,#f7fbff);border:1px solid rgba(29,78,137,.1);
+  border-radius:20px;padding:.85rem;box-shadow:0 10px 24px rgba(22,50,79,.06);
+}
+.artist-card{display:flex;gap:.8rem;align-items:center;}
+#authorImg{width:96px;height:96px;border-radius:18px;object-fit:cover;background:#fff;border:2px solid #fff;box-shadow:0 8px 18px rgba(22,50,79,.16);}
+.meta-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:var(--muted);display:flex;align-items:center;gap:.45rem;}
+.meta-value{margin-top:.25rem;font-size:1.08rem;font-weight:800;}
+#flagIcon img{width:42px!important;height:28px!important;border-radius:6px!important;}
+.toggle-instr,#toggleInstr{margin-top:.35rem;background:none;border:0;color:var(--navy);font-weight:800;text-decoration:underline;cursor:pointer;font-size:.85rem;}
+.map-wrap{height:210px;border-radius:20px;overflow:hidden;background:#e2e8f0;border:1px solid rgba(29,78,137,.1);}
+.map-wrap .meta-label{padding:.55rem .75rem 0;}
+#list > div{border-radius:14px!important;background:#f8fbff!important;}
+@media (max-width:980px){
+  .detail-layout{grid-template-columns:1fr;}
+  .map-wrap{height:180px;}
+}
+@media (max-width:720px){
+  .today-btn{width:100%;text-align:center;}
+  #grid .day{min-height:96px;}
+}
+</style>
+<script>
+(function(){
+  function parisToday(){
+    try{ return new Date().toLocaleString("sv-SE",{timeZone:"Europe/Paris",hour12:false}).slice(0,10); }
+    catch(e){ return new Date().toISOString().slice(0,10); }
+  }
+  function markToday(){
+    const today = parisToday();
+    document.querySelectorAll("#grid .day[data-date]").forEach(function(cell){
+      cell.classList.toggle("is-today", cell.dataset.date === today);
+    });
+  }
+  function openToday(){
+    const today = parisToday();
+    const parts = today.split("-");
+    if(typeof curY !== "undefined" && typeof curM !== "undefined" && parts.length === 3){
+      curY = Number(parts[0]);
+      curM = Number(parts[1]) - 1;
+      if(typeof renderCalendar === "function") renderCalendar();
+    }
+    const cell = document.querySelector('#grid .day[data-date="'+today+'"]');
+    if(cell && !cell.classList.contains("future-locked")){
+      cell.click();
+      return;
+    }
+    location.hash = "#/date=" + encodeURIComponent(today);
+  }
+  const btn = document.getElementById("todayBtn");
+  if(btn) btn.addEventListener("click", openToday);
+  const grid = document.getElementById("grid");
+  if(grid && window.MutationObserver){
+    new MutationObserver(markToday).observe(grid, {childList:true, subtree:true});
+  }
+  document.addEventListener("DOMContentLoaded", markToday);
+  window.addEventListener("hashchange", function(){ setTimeout(markToday, 50); });
+})();
+</script>
